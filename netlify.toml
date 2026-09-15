@@ -1,0 +1,88 @@
+# ============================================================
+# UBUMWE Agri — Configuration Netlify
+# Site statique PWA — aucun build requis
+# ============================================================
+
+[build]
+  publish = "."
+  # Pas de commande build : c'est du HTML/JS/CSS pur statique
+
+# ── Environnement de production ──────────────────────────────
+[context.production.environment]
+  NODE_VERSION = "20"
+
+# ── Redirections SPA ─────────────────────────────────────────
+# Toutes les routes inconnues → index.html (PWA routing)
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# ── En-têtes de sécurité globaux ─────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options            = "DENY"
+    X-Content-Type-Options     = "nosniff"
+    Referrer-Policy            = "strict-origin-when-cross-origin"
+    Strict-Transport-Security  = "max-age=31536000; includeSubDomains; preload"
+    Permissions-Policy         = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy    = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://upload.wikimedia.org https://www.iita.org https://via.placeholder.com https://www.plantwise.org; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; frame-ancestors 'none'"
+
+# ── Service Worker : jamais mis en cache par le CDN ──────────
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma        = "no-cache"
+
+# ── Manifest PWA ─────────────────────────────────────────────
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "no-cache"
+    Content-Type  = "application/manifest+json; charset=utf-8"
+
+# ── Fichiers JS applicatifs : cache court (mise à jour facile) ─
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+
+# ── Images : cache long immutable ───────────────────────────
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.gif"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jfif"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type  = "image/jpeg"
+
+# ── Icônes PWA ───────────────────────────────────────────────
+[[headers]]
+  for = "/icon-*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

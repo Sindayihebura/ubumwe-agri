@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UBUMWE Agri — Vérification Pré-Déploiement</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .container { max-width: 640px; margin: 0 auto; }
+    h1 {
+      font-size: 1.4rem; font-weight: 800;
+      color: #1b4332; margin-bottom: 0.25rem;
+    }
+    .subtitle { font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem; }
+    .card {
+      background: white; border-radius: 12px;
+      padding: 1.25rem; margin-bottom: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .card h2 { font-size: 0.9rem; font-weight: 700; color: #334155; margin-bottom: 0.75rem; }
+    .check-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9;
+      font-size: 0.82rem;
+    }
+    .check-row:last-child { border-bottom: none; }
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: 0.7rem; font-weight: 800; flex-shrink: 0;
+    }
+    .ok   { background: #dcfce7; color: #166534; }
+    .fail { background: #fee2e2; color: #991b1b; }
+    .pending { background: #fef3c7; color: #92400e; }
+    .label { flex: 1; }
+    .detail { font-size: 0.75rem; color: #94a3b8; margin-left: auto; }
+    #summary {
+      padding: 1rem 1.25rem; border-radius: 12px;
+      font-weight: 700; font-size: 0.95rem;
+      text-align: center; margin-top: 1rem;
+    }
+    .summary-ok   { background: #dcfce7; color: #166534; }
+    .summary-fail { background: #fee2e2; color: #991b1b; }
+    .summary-pending { background: #fef3c7; color: #92400e; }
+    .btn {
+      display: block; width: 100%; margin-top: 1rem;
+      padding: 0.75rem; background: #1b4332;
+      color: white; font-weight: 700; font-size: 0.9rem;
+      border: none; border-radius: 10px; cursor: pointer; text-align: center;
+      text-decoration: none;
+    }
+    .btn:hover { background: #163829; }
+    .btn-secondary { background: #0ea5e9; }
+    .btn-secondary:hover { background: #0284c7; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🌾 UBUMWE Agri</h1>
+  <p class="subtitle">Vérification pré-déploiement — tous les fichiers critiques</p>
+
+  <!-- Fichiers JS -->
+  <div class="card">
+    <h2>📄 Scripts JavaScript</h2>
+    <div id="check-js"></div>
+  </div>
+
+  <!-- Fichiers config -->
+  <div class="card">
+    <h2>⚙️ Fichiers de configuration</h2>
+    <div id="check-config"></div>
+  </div>
+
+  <!-- Images -->
+  <div class="card">
+    <h2>🖼️ Images produits</h2>
+    <div id="check-images"></div>
+  </div>
+
+  <!-- Icônes PWA -->
+  <div class="card">
+    <h2>📱 Icônes PWA</h2>
+    <div id="check-icons"></div>
+  </div>
+
+  <!-- APIs navigateur -->
+  <div class="card">
+    <h2>🌐 Capacités navigateur</h2>
+    <div id="check-browser"></div>
+  </div>
+
+  <div id="summary" class="summary-pending">⏳ Vérification en cours…</div>
+
+  <a href="index.html" class="btn">▶ Ouvrir l'application</a>
+  <button class="btn btn-secondary" onclick="location.reload()">🔄 Relancer les vérifications</button>
+</div>
+
+<script>
+  // ── Helpers ──────────────────────────────────────────────────
+  let passCount = 0, failCount = 0;
+
+  function row(label, ok, detail = '') {
+    return `<div class="check-row">
+      <span class="badge ${ok ? 'ok' : 'fail'}">${ok ? '✓' : '✗'}</span>
+      <span class="label">${label}</span>
+      ${detail ? `<span class="detail">${detail}</span>` : ''}
+    </div>`;
+  }
+
+  async function checkFetch(url) {
+    try {
+      const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+      return r.ok;
+    } catch { return false; }
+  }
+
+  async function checkAll() {
+    const results = { js: '', config: '', images: '', icons: '', browser: '' };
+
+    // ── Scripts JS ──────────────────────────────────────────────
+    const scripts = [
+      { file: 'translations.js', label: 'translations.js — i18n' },
+      { file: 'security.js',     label: 'security.js — XSS protection' },
+      { file: 'diseases_db.js',  label: 'diseases_db.js — base maladies offline' },
+      { file: 'app.js',          label: 'app.js — logique principale' },
+      { file: 'sw.js',           label: 'sw.js — Service Worker PWA' },
+    ];
+    for (const { file, label } of scripts) {
+      const ok = await checkFetch(file);
+      if (ok) passCount++; else failCount++;
+      results.js += row(label, ok, file);
+    }
+
+    // ── Config ──────────────────────────────────────────────────
+    const configs = [
+      { file: 'manifest.json', label: 'manifest.json — PWA manifest' },
+      { file: 'netlify.toml',  label: 'netlify.toml — config Netlify' },
+      { file: '_redirects',    label: '_redirects — SPA fallback' },
+    ];
+    for (const { file, label } of configs) {
+      const ok = await checkFetch(file);
+      if (ok) passCount++; else failCount++;
+      results.config += row(label, ok, file);
+    }
+
+    // ── Images ──────────────────────────────────────────────────
+    const images = [
+      'img-haricots.jpg.webp',
+      'img-vaches.jpg.gif',
+      'img-mais.jpg.webp',
+      'img-poules.jpg.jpg',
+      'img-chevre-local.jfif',
+      'img-bananes.jpg.png',
+      'img-porc.jfif',
+      'img-cafe.jfif',
+      'img-canard.jfif',
+      'img-lapin.jfif',
+      'img-mouton.jfif',
+      'img-poisson.jfif',
+      'img-mais-maladie.jpg.jpg',
+    ];
+    for (const img of images) {
+      const ok = await checkFetch(img);
+      if (ok) passCount++; else failCount++;
+      results.images += row(img, ok);
+    }
+
+    // ── Icônes PWA ──────────────────────────────────────────────
+    const icons = ['icon-192.png', 'icon-512.png', 'icon.svg'];
+    for (const icon of icons) {
+      const ok = await checkFetch(icon);
+      if (ok) passCount++; else failCount++;
+      results.icons += row(icon, ok);
+    }
+
+    // ── Capacités navigateur ────────────────────────────────────
+    const caps = [
+      { label: 'Service Worker',     ok: 'serviceWorker' in navigator },
+      { label: 'localStorage',       ok: (() => { try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return true; } catch { return false; } })() },
+      { label: 'Fetch API',          ok: typeof fetch !== 'undefined' },
+      { label: 'Cache Storage',      ok: 'caches' in window },
+      { label: 'crypto.randomUUID',  ok: typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' },
+      { label: 'Intl.NumberFormat',  ok: typeof Intl !== 'undefined' && typeof Intl.NumberFormat === 'function' },
+    ];
+    for (const { label, ok } of caps) {
+      if (ok) passCount++; else failCount++;
+      results.browser += row(label, ok, ok ? 'Supporté' : 'Non supporté');
+    }
+
+    // ── Injection résultats ─────────────────────────────────────
+    document.getElementById('check-js').innerHTML      = results.js;
+    document.getElementById('check-config').innerHTML  = results.config;
+    document.getElementById('check-images').innerHTML  = results.images;
+    document.getElementById('check-icons').innerHTML   = results.icons;
+    document.getElementById('check-browser').innerHTML = results.browser;
+
+    const total = passCount + failCount;
+    const summary = document.getElementById('summary');
+    if (failCount === 0) {
+      summary.className = 'summary-ok';
+      summary.textContent = `✅ Tout est prêt ! ${passCount}/${total} vérifications réussies — Déploiement OK`;
+    } else {
+      summary.className = 'summary-fail';
+      summary.textContent = `⚠️ ${failCount} problème(s) détecté(s) sur ${total} — Corrigez avant déploiement`;
+    }
+  }
+
+  checkAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="description" content="UBUMWE Agri — Agriculture de précision, crédit FOMI, marketplace et diagnostic maladies au Burundi">
+    <meta name="theme-color" content="#1b4332" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0b1d15" media="(prefers-color-scheme: dark)">
+    <!-- iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UBUMWE Agri">
+    <!-- Android / PWA -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Windows -->
+    <meta name="msapplication-TileColor" content="#1b4332">
+    <meta name="msapplication-navbutton-color" content="#1b4332">
+    <title>UBUMWE Agri — Agriculture de Précision, Marketplace & Crédit Burundi</title>
+    
+    <!-- PWA Manifest & Theme Color -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1b4332">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UBUMWE Agri">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- Supabase JS Client v2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            50: '#f2f9f5',
+                            100: '#e1f2e8',
+                            500: '#2d6a4f',
+                            600: '#1b4332',
+                            700: '#163829',
+                            800: '#112d21',
+                            900: '#0b1d15',
+                        },
+                        ochre: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b7410e',
+                            800: '#8c2e08',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            touch-action: manipulation;
+        }
+        
+        .bg-forest-600 { background-color: #1b4332 !important; }
+        .bg-forest-700 { background-color: #163829 !important; }
+        .bg-ochre-700 { background-color: #b7410e !important; }
+        .text-forest-700 { color: #163829 !important; }
+        .text-ochre-700 { color: #b7410e !important; }
+        
+        input, select, button, textarea {
+            min-height: 44px;
+        }
+        
+        .modal-backdrop {
+            background-color: rgba(11, 29, 21, 0.75);
+            backdrop-filter: blur(4px);
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Sélecteur de langue */
+        .lang-btn {
+            color: rgba(255,255,255,0.45);
+        }
+        .lang-btn.active {
+            background-color: #f59e0b;
+            color: #0b1d15;
+        }
+        .lang-btn:hover:not(.active) {
+            color: white;
+        }
+
+        /* ── DESIGN PROFESSIONNEL ── */
+        .product-card-pro { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .product-card-pro:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+        .hero-animated { background: linear-gradient(135deg, #0b1d15 0%, #163829 50%, #1b4332 100%); }
+        .stat-num { font-size: 1.5rem; font-weight: 900; color: #163829; line-height: 1; }
+        .stat-lbl { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 3px; }
+
+        /* Chat FAB & Panel */
+        #chat-panel {
+            position: fixed; bottom: 85px; right: 16px;
+            width: 320px; max-height: 480px;
+            background: white; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            border: 1px solid #e2e8f0;
+            display: flex; flex-direction: column;
+            z-index: 999; transform: scale(0); opacity: 0;
+            transform-origin: bottom right;
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s;
+        }
+        #chat-panel.open { transform: scale(1); opacity: 1; }
+        .chat-header {
+            background: linear-gradient(135deg, #163829, #0b1d15);
+            color: white; padding: 14px 16px; border-radius: 20px 20px 0 0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 12px;
+            display: flex; flex-direction: column; gap: 8px; max-height: 300px;
+        }
+        .chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 14px; font-size: 12px; line-height: 1.5; }
+        .chat-msg.sent { background: #163829; color: white; align-self: flex-end; border-radius: 14px 14px 4px 14px; }
+        .chat-msg.received { background: #f1f5f9; color: #1e293b; align-self: flex-start; border-radius: 14px 14px 14px 4px; }
+        .chat-msg .time { font-size: 9px; opacity: 0.6; margin-top: 2px; }
+        .chat-input-area { padding: 10px 12px; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; align-items: center; }
+        .chat-input { flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 12px; outline: none; }
+        .chat-send { width: 34px; height: 34px; border-radius: 50%; background: #163829; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        #chat-fab {
+            position: fixed; bottom: 24px; right: 16px;
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg, #163829, #0b1d15);
+            color: white; border: none; cursor: pointer;
+            box-shadow: 0 6px 20px rgba(11,29,21,0.4);
+            z-index: 999; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; transition: transform 0.2s;
+        }
+        #chat-fab:hover { transform: scale(1.1); }
+        .chat-fab-badge {
+            position: absolute; top: -4px; right: -4px;
+            background: #ef4444; color: white; border-radius: 50%;
+            width: 18px; height: 18px; font-size: 10px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+        }
+        /* ── RESPONSIVE MOBILE-FIRST COMPLET ── */
+
+        /* Empêcher tout débordement horizontal */
+        html, body { overflow-x: hidden; max-width: 100vw; }
+        * { box-sizing: border-box; }
+        img { max-width: 100%; height: auto; }
+
+        /* Grilles adaptées mobile */
+        @media (max-width: 480px) {
+            .grid.grid-cols-2  { grid-template-columns: 1fr !important; }
+            .grid.sm\\:grid-cols-2 { grid-template-columns: 1fr !important; }
+            .sm\\:grid-cols-3 { grid-template-columns: 1fr !important; }
+            .sm\\:grid-cols-4 { grid-template-columns: repeat(2,1fr) !important; }
+            .sm\\:grid-cols-5 { grid-template-columns: 1fr !important; }
+            /* Tableaux scrollables */
+            .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            table { min-width: 500px; }
+            /* Boutons pleine largeur mobile */
+            .flex.gap-3 > button, .flex.gap-2 > button { min-width: 0; }
+            /* Textes adaptés */
+            h2 { font-size: 1.1rem !important; }
+            h3 { font-size: 0.95rem !important; }
+            /* Padding réduit */
+            .p-6 { padding: 1rem !important; }
+            .p-5 { padding: 0.875rem !important; }
+            .px-6 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+            /* Cards produits — 2 colonnes sur mobile */
+            #marketplace-grid { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+            #home-featured-products { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+            #diseases-grid { grid-template-columns: 1fr !important; }
+        }
+
+        @media (max-width: 360px) {
+            #marketplace-grid { grid-template-columns: 1fr !important; }
+            #home-featured-products { grid-template-columns: 1fr !important; }
+        }
+
+        /* Chat panel mobile */
+        @media (max-width: 640px) {
+            #chat-panel { 
+                width: calc(100vw - 16px) !important; 
+                right: 8px !important; 
+                left: 8px !important;
+                bottom: 70px !important;
+            }
+            #chat-fab { bottom: 16px; right: 12px; }
+        }
+
+        /* Modales — plein écran sur mobile */
+        @media (max-width: 640px) {
+            .modal-backdrop > div {
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 16px 16px 0 0 !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                max-height: 92vh !important;
+            }
+        }
+
+        /* Formulaires — inputs bien dimensionnés */
+        @media (max-width: 480px) {
+            input, select, textarea, button {
+                font-size: 16px !important; /* évite le zoom iOS */
+                min-height: 44px;
+            }
+            .text-xs { font-size: 0.75rem !important; }
+        }
+
+        /* Desktop */
+        @media (min-width: 768px) {
+            #main-app { max-width: 100%; }
+            .max-w-6xl { max-width: 72rem; margin: 0 auto; }
+        }
+
+        /* Print */
+        @media print {
+            #chat-fab, #chat-panel, #hamburger-menu, #hamburger-btn,
+            header, footer { display: none !important; }
+            #main-app { padding: 0 !important; }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col min-h-screen">
+
+    <!-- TOAST DE NOTIFICATION (SUCCÈS / ERREUR) -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- HEADER SIMPLIFIÉ MOBILE-FIRST -->
+    <header class="sticky top-0 z-40 bg-forest-800 text-white shadow-lg border-b border-forest-600">
+        <div class="px-4 h-14 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <div class="flex items-center gap-2 cursor-pointer" onclick="app.showScreen('home')">
+                <div class="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-leaf text-forest-900 text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sm leading-none">
+                        UBUMWE <span class="text-amber-400">Agri</span>
+                    </h1>
+                    <span class="text-[9px] text-emerald-300">Burundi · FOMI · Offline</span>
+                </div>
+            </div>
+
+            <!-- Droite : Langue + Hamburger -->
+            <div class="flex items-center gap-2">
+                <!-- Sélecteur langue compact -->
+                <div class="flex items-center bg-forest-900/60 rounded-lg overflow-hidden border border-forest-600">
+                    <button onclick="setLanguage('fr')" data-lang="fr" class="lang-btn px-2 py-1 text-[10px] font-black transition active">FR</button>
+                    <button onclick="setLanguage('rn')" data-lang="rn" class="lang-btn px-2 py-1 text-[10px] font-black transition">RN</button>
+                    <button onclick="setLanguage('en')" data-lang="en" class="lang-btn px-2 py-1 text-[10px] font-black transition">EN</button>
+                </div>
+
+                <!-- Badge offline -->
+                <span id="db-status-text" class="hidden sm:inline-block text-[9px] text-emerald-300 font-bold"></span>
+
+                <!-- Profil compact (si connecté) -->
+                <div id="user-profile-container" class="hidden">
+                    <button onclick="app.toggleUserMenu()" class="w-8 h-8 rounded-full bg-amber-400 text-forest-900 font-black text-xs flex items-center justify-center shadow" id="user-avatar-btn">
+                        <i class="fa-solid fa-user text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Bouton Hamburger Menu -->
+                <button onclick="toggleHamburger()" id="hamburger-btn"
+                    class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-forest-700 hover:bg-forest-600 transition"
+                    aria-label="Menu">
+                    <span class="w-5 h-0.5 bg-white rounded block transition-all" id="hb1"></span>
+                    <span class="w-5 h-0.5 bg-white rounded block transition-all" id="hb2"></span>
+                    <span class="w-4 h-0.5 bg-white rounded block transition-all" id="hb3"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MENU HAMBURGER DROPDOWN -->
+    <div id="hamburger-menu" class="hidden fixed top-14 right-0 left-0 z-30 bg-forest-900 border-b border-forest-700 shadow-2xl">
+        <div class="px-4 py-3 grid grid-cols-2 gap-2">
+            <button onclick="app.showScreen('home');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-house text-amber-400 w-4"></i> Accueil
+            </button>
+            <button onclick="app.showScreen('scoring');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-calculator text-amber-400 w-4"></i> Agri-Scoring
+            </button>
+            <button onclick="app.showScreen('market');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-store text-amber-400 w-4"></i> Marketplace
+            </button>
+            <button onclick="app.showScreen('livestock');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-cow text-emerald-400 w-4"></i> Élevage
+            </button>
+            <button onclick="app.showScreen('diseases');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-virus text-red-400 w-4"></i> Maladies
+            </button>
+            <button onclick="app.showScreen('prices');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-chart-line text-amber-400 w-4"></i> Prix
+            </button>
+            <button onclick="app.showScreen('sos');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-900 hover:bg-red-800 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-phone-volume text-red-400 animate-pulse w-4"></i> SOS Kaza
+            </button>
+            <button onclick="app.showScreen('guide');toggleHamburger()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
+                <i class="fa-solid fa-book-open text-amber-400 w-4"></i> Guide FOMI
+            </button>
+            <button id="menu-admin-btn" onclick="app.showScreen('admin');toggleHamburger()" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 text-amber-300 text-xs font-bold transition">
+                <i class="fa-solid fa-user-shield w-4"></i> Admin
+            </button>
+            <button id="menu-logout-btn" onclick="app.logout();toggleHamburger()" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-300 text-xs font-bold transition">
+                <i class="fa-solid fa-right-from-bracket w-4"></i> Déconnexion
+            </button>
+        </div>
+        <!-- Connexion rapide si non connecté -->
+        <div id="menu-auth-btns" class="px-4 pb-3 flex gap-2">
+            <button onclick="app.openAuthModal('login');toggleHamburger()" class="flex-1 py-2.5 bg-amber-400 text-forest-900 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+            </button>
+            <button onclick="app.openAuthModal('register');toggleHamburger()" class="flex-1 py-2.5 bg-forest-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-forest-500">
+                <i class="fa-solid fa-user-plus"></i> S'inscrire
+            </button>
+        </div>
+    </div>
+
+
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ÉCRAN DE BIENVENUE (Obligatoire avant tout accès)  -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="welcome-screen" class="min-h-screen flex flex-col overflow-y-auto" style="background:linear-gradient(160deg,#0b1d15 0%,#163829 50%,#0b1d15 100%)">
+
+        <!-- Logo centré -->
+        <div class="flex flex-col items-center justify-center pt-12 pb-6 px-6 text-center">
+            <div class="w-20 h-20 rounded-2xl bg-amber-400 flex items-center justify-center shadow-2xl mb-4">
+                <i class="fa-solid fa-leaf text-forest-900 text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-black text-white">UBUMWE <span class="text-amber-400">Agri</span></h1>
+            <p class="text-emerald-300 text-sm mt-1">Agriculture de Précision au Burundi</p>
+            <div class="flex flex-wrap justify-center gap-2 mt-3">
+                <span class="px-2 py-1 bg-white/10 text-white text-[10px] font-bold rounded-full">🌿 FOMI Burundi</span>
+                <span class="px-2 py-1 bg-white/10 text-white text-[10px] font-bold rounded-full">📶 Offline-First</span>
+                <span class="px-2 py-1 bg-white/10 text-white text-[10px] font-bold rounded-full">5 Provinces</span>
+                <span class="px-2 py-1 bg-white/10 text-white text-[10px] font-bold rounded-full">🛡️ Sécurisé</span>
+            </div>
+        </div>
+
+        <!-- Description du site -->
+        <div class="mx-4 bg-white/8 border border-white/15 rounded-2xl p-4 mb-4">
+            <h2 class="text-amber-400 font-extrabold text-sm mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info"></i> Ce que vous pouvez faire ici
+            </h2>
+            <div class="grid grid-cols-2 gap-2 text-xs text-white">
+                <div class="flex items-start gap-2"><span class="text-amber-400 text-base">🎯</span><span>Calculer votre score de crédit engrais FOMI</span></div>
+                <div class="flex items-start gap-2"><span class="text-amber-400 text-base">🛒</span><span>Vendre et acheter récoltes et animaux</span></div>
+                <div class="flex items-start gap-2"><span class="text-amber-400 text-base">🦠</span><span>Diagnostiquer maladies plantes et animaux</span></div>
+                <div class="flex items-start gap-2"><span class="text-amber-400 text-base">💰</span><span>Consulter les prix des marchés officiels</span></div>
+                <div class="flex items-start gap-2"><span class="text-amber-400 text-base">🆘</span><span>Envoyer une alerte urgence SOS Kaza</span></div>
+                <div class="flex items-start gap-2"><span class="text-amber-400 text-base">🤖</span><span>Poser des questions à l'IA agricole</span></div>
+            </div>
+        </div>
+
+        <!-- Mini tutoriel pour agriculteur illettré -->
+        <div class="mx-4 mb-4">
+            <button onclick="document.getElementById('tutoriel').classList.toggle('hidden')"
+                class="w-full py-2.5 bg-white/10 border border-white/20 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                Comment utiliser ce site ? (Mini-guide)
+                <i class="fa-solid fa-chevron-down text-white/50 text-xs"></i>
+            </button>
+            <div id="tutoriel" class="hidden mt-2 bg-white/8 border border-white/15 rounded-xl p-4 space-y-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-sm flex-shrink-0">1</div>
+                    <div class="text-xs text-white"><strong class="text-amber-400">Créez votre compte</strong> — Appuyez sur "S'inscrire", entrez votre nom et votre numéro de téléphone (+257).</div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-sm flex-shrink-0">2</div>
+                    <div class="text-xs text-white"><strong class="text-amber-400">Utilisez le menu</strong> — Appuyez sur les 3 barres (☰) en haut à droite pour accéder à toutes les fonctions.</div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-sm flex-shrink-0">3</div>
+                    <div class="text-xs text-white"><strong class="text-amber-400">Scoring crédit</strong> — Entrez votre culture, votre province et superficie pour savoir si vous êtes éligible au crédit FOMI.</div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-sm flex-shrink-0">4</div>
+                    <div class="text-xs text-white"><strong class="text-amber-400">Marketplace</strong> — Publiez vos récoltes ou animaux à vendre. Les acheteurs vous contactent directement par WhatsApp.</div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-sm flex-shrink-0">5</div>
+                    <div class="text-xs text-white"><strong class="text-amber-400">SOS Kaza</strong> — Urgence animale ou agricole ? Envoyez une alerte à votre agent DPAE en 1 minute.</div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-sm flex-shrink-0">6</div>
+                    <div class="text-xs text-white"><strong class="text-amber-400">Chat IA</strong> — Le bouton vert en bas à droite. Posez vos questions en français ou en Kirundi !</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons connexion / inscription — TOUJOURS VISIBLES -->
+        <div class="mx-4 space-y-2 mb-4 mt-2">
+            <button onclick="showWelcomeAuth('login')"
+                class="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-forest-900 font-black rounded-2xl text-base shadow-xl flex items-center justify-center gap-3 transition">
+                <i class="fa-solid fa-right-to-bracket text-xl"></i>
+                Se connecter
+            </button>
+            <button onclick="showWelcomeAuth('register')"
+                class="w-full py-3.5 text-white font-extrabold rounded-2xl text-base flex items-center justify-center gap-3 transition border-2 border-amber-400"
+                style="background:rgba(245,158,11,0.15)">
+                <i class="fa-solid fa-user-plus text-xl text-amber-400"></i>
+                <span>Créer un compte <span class="text-amber-400">gratuit</span></span>
+            </button>
+            <button onclick="enterAsGuest()"
+                class="w-full py-2 text-white/50 hover:text-white/80 text-xs font-bold flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-eye"></i>
+                Voir sans compte (accès limité)
+            </button>
+        </div>
+
+        <!-- Footer version -->
+        <p class="text-center text-white/25 text-[10px] pb-4">UBUMWE Agri v3.0 · Données conformes Loi 1/05 · 2026</p>
+    </div>
+
+    <!-- CONTENU PRINCIPAL SPA -->
+    <main id="main-app" class="hidden flex-1 w-full">
+    <div class="max-w-4xl mx-auto w-full px-3 sm:px-4 py-4 space-y-4">
+
+        <!-- 1. ECRAN ACCUEIL -->
+        <section id="screen-home" class="">
+            
+            <!-- HERO BANNER -->
+            <div class="rounded-2xl bg-gradient-to-br from-forest-700 via-forest-800 to-forest-900 text-white p-6 sm:p-8 shadow-xl border border-forest-600 relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-10 text-white text-9xl pointer-events-none">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-400 text-forest-900 mb-3 uppercase tracking-wider shadow">
+                        <i class="fa-solid fa-shield-halved"></i> Supabase Auth & Offline-First Active
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight" data-i18n="hero_title">
+                        UBUMWE Agri : Crédit Agricole, Fertilisants FOMI & Marketplace Burundi
+                    </h2>
+                    <p class="mt-3 text-xs sm:text-sm text-emerald-100 leading-relaxed" data-i18n="hero_subtitle">
+                        Solution complète d’agriculture de précision : Évaluez votre score de crédit engrais, vendez et achetez des récoltes et du bétail sans intermédiaire, et recevez les conseils de vaccination et de compagnonnage.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <button onclick="app.showScreen('scoring')" class="px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-forest-900 font-extrabold shadow-lg transition flex items-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span data-i18n="hero_btn_score">Calculer mon Score Crédit</span>
+                        </button>
+                        <button onclick="app.showScreen('market')" class="px-5 py-3 rounded-xl bg-forest-600 hover:bg-forest-500 text-white font-bold border border-forest-400 transition flex items-center space-x-2">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                            <span data-i18n="hero_btn_market">Accéder à la Marketplace</span>
+                        </button>
+                        <button onclick="app.openDepositModal()" class="px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition flex items-center space-x-2">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span data-i18n="hero_btn_deposit">Déposer un Produit</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BARRE STATISTIQUES PROFESSIONNELLE -->
+            <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-4">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                    <div>
+                        <div class="stat-num" id="stat-users">500+</div>
+                        <div class="stat-lbl">Agriculteurs</div>
+                    </div>
+                    <div>
+                        <div class="stat-num" id="stat-products">120+</div>
+                        <div class="stat-lbl">Produits en vente</div>
+                    </div>
+                    <div>
+                        <div class="stat-num" id="stat-provinces">5</div>
+                        <div class="stat-lbl">Provinces couvertes</div>
+                    </div>
+                    <div>
+                        <div class="stat-num" id="stat-diseases">18</div>
+                        <div class="stat-lbl">Maladies répertoriées</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BADGES PARTENAIRES & STRATÉGIE -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center gap-2.5">
+                    <i class="fa-solid fa-flask text-forest-700 text-xl"></i>
+                    <div class="text-left"><span class="block text-[10px] text-slate-400 font-bold uppercase">Partenaire Engrais</span><strong class="text-xs text-slate-800">FOMI Burundi</strong></div>
+                </div>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center gap-2.5">
+                    <i class="fa-solid fa-database text-amber-600 text-xl"></i>
+                    <div class="text-left"><span class="block text-[10px] text-slate-400 font-bold uppercase">Base de Données</span><strong class="text-xs text-slate-800">Supabase RLS</strong></div>
+                </div>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center gap-2.5">
+                    <i class="fa-solid fa-cow text-ochre-700 text-xl"></i>
+                    <div class="text-left"><span class="block text-[10px] text-slate-400 font-bold uppercase">Élevage & Bétail</span><strong class="text-xs text-slate-800">Bovins & Volailles</strong></div>
+                </div>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center gap-2.5">
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i>
+                    <div class="text-left"><span class="block text-[10px] text-slate-400 font-bold uppercase">Vente Directe</span><strong class="text-xs text-slate-800">WhatsApp Direct</strong></div>
+                </div>
+            </div>
+
+            <!-- APERÇU RAPIDE MARKETPLACE SUR L'ACCUEIL -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-amber-500"></i> Dernières Offres de la Marketplace (Agricole & Élevage)
+                        </h3>
+                        <p class="text-xs text-slate-500">Produits agricoles et animaux mis en vente dans les 5 provinces du Burundi.</p>
+                    </div>
+                    <button onclick="app.showScreen('market')" class="text-xs font-bold text-forest-700 hover:text-forest-900 underline">
+                        Voir tout (Marketplace) &rarr;
+                    </button>
+                </div>
+
+                <div id="home-featured-products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- 2. ECRAN AGRI-SCORING & DEMANDE DE CRÉDIT -->
+        <section id="screen-scoring" class="hidden ">
+            <div class="flex items-center justify-between">
+                <button onclick="app.showScreen('home')" class="inline-flex items-center text-xs font-bold text-forest-700 hover:text-forest-900">
+                    <i class="fa-solid fa-chevron-left mr-1"></i> Retour Accueil
+                </button>
+                <span class="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-full">
+                    <i class="fa-solid fa-microchip mr-1"></i> Algorithme de Scoring Agronomique FOMI
+                </span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+                <div class="p-5 bg-forest-800 text-white border-b border-forest-700">
+                    <h2 class="text-xl font-extrabold flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-amber-400"></i> Formulaire d'Évaluation de Crédit Engrais
+                    </h2>
+                    <p class="text-xs text-emerald-200 mt-1">Saisissez les détails de la parcelle pour obtenir un score de confiance et faire une demande de crédit d'intrants.</p>
+                </div>
+
+                <form id="agri-scoring-form" class="p-6 space-y-5" onsubmit="app.handleCalculateScoring(event)">
+                    
+                    <div>
+                        <label for="score-farmer-name" class="block text-xs font-extrabold text-slate-700 uppercase mb-1" data-i18n="scoring_farmer_name">Nom Complet de l'Agriculteur *</label>
+                        <input type="text" id="score-farmer-name" required placeholder="Ex: Nkurunziza Jean-Marie" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-sm font-medium text-slate-800 outline-none">
+                        <span id="err-score-farmer-name" class="text-xs text-rose-600 font-semibold hidden"></span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="score-province" class="block text-xs font-bold text-slate-700 mb-1" data-i18n="scoring_province">Province (Réforme 2025) *</label>
+                            <select id="score-province" required onchange="updateCommunes(this.value)" class="w-full px-3 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-xs font-bold text-slate-800 bg-white">
+                                <option value="">-- Choisir province --</option>
+                                <option value="GITEGA">Gitega (Chef-lieu: Gitega)</option>
+                                <option value="BUHUMUZA">Buhumuza (Cankuzo, Muyinga, Ruyigi)</option>
+                                <option value="BUJUMBURA">Bujumbura (Mairie, Rural, Bubanza, Cibitoke)</option>
+                                <option value="BURUNGA">Burunga (Bururi, Makamba, Rumonge, Rutana)</option>
+                                <option value="BUTANYERERA">Butanyerera (Ngozi, Kayanza, Kirundo)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="score-commune" class="block text-xs font-bold text-slate-700 mb-1" data-i18n="scoring_commune">Commune / Colline *</label>
+                            <select id="score-commune" required class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-xs font-bold text-slate-800 bg-white">
+                                <option value="">-- Choisir province d'abord --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label for="score-crop" class="block text-xs font-extrabold text-slate-700 uppercase mb-1" data-i18n="scoring_crop">Culture Principale *</label>
+                            <select id="score-crop" required class="w-full px-3 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-xs font-bold text-slate-800 bg-white">
+                                <optgroup label="🌽 Cultures Vivrières — Céréales">
+                                    <option value="Maïs">� Maïs</option>
+                                    <option value="Riz (Imbo)">🌾 Riz (Plaine Imbo / Marais)</option>
+                                    <option value="Sorgho">🌿 Sorgho</option>
+                                    <option value="Éleusine">� Éleusine</option>
+                                </optgroup>
+                                <optgroup label="🫘 Légumineuses">
+                                    <option value="Haricot">🫘 Haricot</option>
+                                    <option value="Petits pois">� Petits Pois</option>
+                                </optgroup>
+                                <optgroup label="🥔 Tubercules">
+                                    <option value="Manioc">🥔 Manioc (Imyumbati)</option>
+                                    <option value="Patate douce">🍠 Patate Douce</option>
+                                    <option value="Pomme de terre">🥔 Pomme de Terre (Mugamba)</option>
+                                    <option value="Colocase">🌱 Colocase</option>
+                                </optgroup>
+                                <optgroup label="🍌 Fruits &amp; Bananes">
+                                    <option value="Banane">🍌 Banane à Cuire / Douce (Ibitoke)</option>
+                                    <option value="Banane à bière">🍺 Banane à Bière (Urgwagwa)</option>
+                                    <option value="Avocat">🥑 Avocat</option>
+                                </optgroup>
+                                <optgroup label="☕ Cultures de Rente">
+                                    <option value="Café">☕ Café Arabica</option>
+                                    <option value="Thé">🍵 Thé (Crête Congo-Nil)</option>
+                                    <option value="Palmier à huile">🌴 Palmier à Huile (Imbo/Mosso)</option>
+                                    <option value="Canne à sucre">🌿 Canne à Sucre (SOSUMO/Mosso)</option>
+                                    <option value="Coton">🪴 Coton</option>
+                                </optgroup>
+                                <optgroup label="🥬 Maraîcher / Horticulture">
+                                    <option value="Tomate">🍅 Tomate</option>
+                                    <option value="Chou">🥬 Chou</option>
+                                    <option value="Oignon">🧅 Oignon</option>
+                                    <option value="Lengalenga">🌿 Lengalenga (Amarante)</option>
+                                    <option value="Champignon">🍄 Champignon (Hors-sol)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="score-topography" class="block text-xs font-extrabold text-slate-700 uppercase mb-1" data-i18n="scoring_topography">Relief / Topographie (Kirundi) *</label>
+                            <select id="score-topography" required class="w-full px-3 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-xs font-bold text-slate-800 bg-white">
+                                <option value="Plateau / Colline (Agasozi)">Plateau / Colline (Agasozi)</option>
+                                <option value="Plaine / Bas-fond (Imbo / Umwonga)">Plaine / Bas-fond (Imbo / Umwonga)</option>
+                                <option value="Pente / Versant (Haduga / Igikuka)">Pente / Versant (Haduga / Igikuka)</option>
+                                <option value="Haute Montagne (Mugamba)">Haute Montagne (Mugamba)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="score-soil" class="block text-xs font-extrabold text-slate-700 uppercase mb-1" data-i18n="scoring_soil">Texture du Sol *</label>
+                            <select id="score-soil" required class="w-full px-3 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-xs font-bold text-slate-800 bg-white">
+                                <option value="Argile">Argile (Lourd)</option>
+                                <option value="Sable">Sable (Filtrant)</option>
+                                <option value="Limon">Limon (Équilibré)</option>
+                                <option value="Limono-Argileux">Limono-Argileux (Optimal)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="score-surface" class="block text-xs font-extrabold text-slate-700 uppercase mb-1" data-i18n="scoring_surface">Superficie (en Hectares) *</label>
+                            <input type="number" step="0.1" min="0.1" id="score-surface" required value="1.0" class="w-full px-3 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-sm font-bold text-slate-800">
+                            <span id="err-score-surface" class="text-xs text-rose-600 font-semibold hidden"></span>
+                        </div>
+                        <div>
+                            <label for="score-phone" class="block text-xs font-extrabold text-slate-700 uppercase mb-1" data-i18n="scoring_phone">Téléphone de Contact Burundi *</label>
+                            <input type="text" id="score-phone" required placeholder="+257 79 123 456" class="w-full px-3 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-sm font-bold text-slate-800">
+                            <span id="err-score-phone" class="text-xs text-rose-600 font-semibold hidden">Format invalide (Ex: +257 79 123 456)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="score-institution" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Institution Bancaire *</label>
+                        <select id="score-institution" class="w-full px-3 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-forest-500 text-xs font-bold text-slate-800 bg-white">
+                            <option value="FENACOBU">FENACOBU / COOPEC (Réseau communal)</option>
+                            <option value="BCAB">BCAB — Crédit Twese Kw'Itongo (après récolte)</option>
+                            <option value="BNDE">BNDE — Agro-industrie (taux 7%)</option>
+                            <option value="BANCOBU">BANCOBU — PAIFAR-B/FIDA</option>
+                            <option value="CRDB_Bank">CRDB Bank — Chaînes de valeur rurales</option>
+                            <option value="CECM">CECM — Groupements femmes</option>
+                            <option value="WISE">WISE Microfinance</option>
+                            <option value="UCODE_Microfinance">UCODE Microfinance — Warrantage Riz/Maïs</option>
+                        </select>
+                        <p class="text-[10px] text-slate-400 mt-1">Warrantage disponible : BCAB, BNDE, UCODE (stock récolte comme garantie)</p>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 bg-gradient-to-r from-forest-700 to-forest-800 hover:from-forest-800 hover:to-forest-900 text-white font-black rounded-xl shadow-lg transition flex items-center justify-center space-x-2 text-base">
+                        <i class="fa-solid fa-calculator text-amber-400 text-lg"></i>
+                        <span data-i18n="scoring_calculate">ÉVALUER LE SCORE ET RECOMMANDER L'ENGRAIS</span>
+                    </button>
+                </form>
+
+                <!-- RESULTAT SCORING (INJECTÉ EN JS) -->
+                <div id="scoring-result-container" class="hidden p-6 bg-slate-50 border-t border-slate-200 space-y-4"></div>
+            </div>
+        </section>
+
+
+        <!-- 3. ECRAN MARKETPLACE (PRODUITS VÉGÉTAUX ET ÉLEVAGE) -->
+        <section id="screen-market" class="hidden ">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-2xl font-black text-forest-800 flex items-center gap-2">
+                        <i class="fa-solid fa-store text-amber-500"></i> Marketplace Agricole & Élevage Burundi
+                    </h2>
+                    <p class="text-xs text-slate-500" data-i18n="market_subtitle">Achetez et vendez directement vos récoltes et bétail sans intermédiaire.</p>
+                </div>
+                
+                <button onclick="app.openDepositModal()" class="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-forest-900 font-extrabold rounded-xl shadow transition flex items-center gap-2 text-xs">
+                    <i class="fa-solid fa-plus-circle text-sm"></i>
+                    <span data-i18n="market_deposit">Déposer un Produit / Animal</span>
+                </button>
+            </div>
+
+            <!-- FILTRES RECHERCHE -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="app.filterMarket('all')" id="filter-btn-all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-forest-700 text-white shadow-sm">
+                        Tous les Produits
+                    </button>
+                    <button onclick="app.filterMarket('vegetal')" id="filter-btn-vegetal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
+                        🌱 Produits Végétaux
+                    </button>
+                    <button onclick="app.filterMarket('animal')" id="filter-btn-animal" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
+                        🐄 Élevage & Bétail
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="market-province-filter" onchange="app.renderMarketplace()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-800 bg-white">
+                        <option value="all" data-i18n="market_province_all">Toutes les Provinces</option>
+                        <option value="GITEGA">Gitega</option>
+                        <option value="BUHUMUZA">Buhumuza</option>
+                        <option value="BUJUMBURA">Bujumbura</option>
+                        <option value="BURUNGA">Burunga</option>
+                        <option value="BUTANYERERA">Butanyerera</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- GRILLE DES PRODUITS MARKETPLACE -->
+            <div id="marketplace-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Rendu dynamiquement -->
+            </div>
+        </section>
+
+
+        <!-- 4. ECRAN SECTION ÉLEVAGE & BÉTAIL -->
+        <section id="screen-livestock" class="hidden ">
+            <div class="bg-gradient-to-r from-emerald-800 to-forest-900 rounded-2xl p-6 text-white shadow-lg space-y-3">
+                <span class="px-3 py-1 bg-amber-400 text-forest-900 rounded-full text-xs font-black uppercase">Module Spécialisé</span>
+                <h2 class="text-2xl font-black flex items-center gap-2">
+                    <i class="fa-solid fa-cow text-amber-400"></i> Élevage & Santé Animale au Burundi
+                </h2>
+                <p class="text-xs text-emerald-100 max-w-2xl">
+                    Guides d'alimentation, calendriers de vaccination et valorisation de la bouse pour la synergie avec les engrais organo-minéraux FOMI.
+                </p>
+            </div>
+
+            <!-- ONGLETS PAR ESPÈCE -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <!-- Vaches / Bovins -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <h3 class="font-extrabold text-forest-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-cow text-ochre-700"></i> Bovins / Vaches (Inka)
+                        </h3>
+                        <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">Ruminants</span>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-2 list-disc list-inside">
+                        <li><strong>Alimentation :</strong> Pennisetum purpureum (Herbe d'Éléphant) + Tourteau de Coton.</li>
+                        <li><strong>Vaccination :</strong> Fièvre de la Vallée du Rift & Fièvre Aphteuse (Annuel).</li>
+                        <li><strong>Synergie FOMI :</strong> Compostage du fumier bovin mélangé à l'engrais FOMI Imbura.</li>
+                    </ul>
+                </div>
+
+                <!-- Chèvres / Caprins -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <h3 class="font-extrabold text-forest-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-horse text-amber-600"></i> Caprins & Ovins (Impene)
+                        </h3>
+                        <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">Petit Bétail</span>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-2 list-disc list-inside">
+                        <li><strong>Alimentation :</strong> Feuilles de Leucaena, Crotalaria et fanes de Haricot sec.</li>
+                        <li><strong>Santé :</strong> Déparasitage trimestriel contre les vers gastro-intestinaux.</li>
+                        <li><strong>Pratique :</strong> Élevage en stabulation permanente pour éviter le piétinement des cultures.</li>
+                    </ul>
+                </div>
+
+                <!-- Volailles / Poules -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <h3 class="font-extrabold text-forest-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-egg text-amber-500"></i> Volailles (Inkoko)
+                        </h3>
+                        <span class="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded">Aviculture</span>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-2 list-disc list-inside">
+                        <li><strong>Alimentation :</strong> Provende Maïs-Soya + Farine de poisson du Lac Tanganyika.</li>
+                        <li><strong>Vaccination :</strong> Maladie de Newcastle (Vaccin HB1 à la naissance et Rappel 3 mois).</li>
+                        <li><strong>Production :</strong> Collecte de fiente riche en Azote pour le maraîchage.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Nouvelles espèces -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <img src="img-lapin.jfif" class="w-10 h-10 rounded-lg object-cover" alt="Lapin">
+                        <div>
+                            <h4 class="font-extrabold text-forest-800 text-xs">Cuniculture (Lapins)</h4>
+                            <span class="text-[9px] font-bold bg-green-100 text-green-800 px-1.5 py-0.5 rounded">Cycle Court</span>
+                        </div>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-1 list-disc list-inside">
+                        <li><strong>Cycle :</strong> 3 mois (très rapide).</li>
+                        <li><strong>Idéal :</strong> Petites parcelles familiales.</li>
+                        <li><strong>Aliment :</strong> Feuilles + son de riz.</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <img src="img-mouton.jfif" class="w-10 h-10 rounded-lg object-cover" alt="Mouton">
+                        <div>
+                            <h4 class="font-extrabold text-forest-800 text-xs">Ovins (Moutons)</h4>
+                            <span class="text-[9px] font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">Ruminants</span>
+                        </div>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-1 list-disc list-inside">
+                        <li><strong>Alimentation :</strong> Leucaena + résidus récolte.</li>
+                        <li><strong>Santé :</strong> Déparasitage 2x/an.</li>
+                        <li><strong>Poids :</strong> 25-35 kg adulte.</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <img src="img-canard.jfif" class="w-10 h-10 rounded-lg object-cover" alt="Canard">
+                        <div>
+                            <h4 class="font-extrabold text-forest-800 text-xs">Canards</h4>
+                            <span class="text-[9px] font-bold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">Semi-extensif</span>
+                        </div>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-1 list-disc list-inside">
+                        <li><strong>Habitat :</strong> Près des marais.</li>
+                        <li><strong>Production :</strong> Oeufs + viande.</li>
+                        <li><strong>Aliment :</strong> Insectes + grains.</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <img src="img-poisson.jfif" class="w-10 h-10 rounded-lg object-cover" alt="Poisson">
+                        <div>
+                            <h4 class="font-extrabold text-forest-800 text-xs">Pisciculture</h4>
+                            <span class="text-[9px] font-bold bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">Marais</span>
+                        </div>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-1 list-disc list-inside">
+                        <li><strong>Espèce :</strong> Tilapia + Carpe.</li>
+                        <li><strong>Étang :</strong> Marais aménagés.</li>
+                        <li><strong>Compléte :</strong> Pêche Lac Tanganyika.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- PRODUITS ÉLEVAGE SEULEMENT -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
+                <h3 class="font-extrabold text-slate-900 text-base">Animaux actuellement disponibles à l'achat sur le Marché</h3>
+                <div id="livestock-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Dynamique -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 5. ECRAN GUIDE FOMI -->
+        <section id="screen-guide" class="hidden ">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-md space-y-5">
+                <div class="border-b border-slate-100 pb-4">
+                    <h2 class="text-xl font-black text-forest-800 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-ochre-700"></i> Guide d'Usage des Engrais Organo-Minéraux FOMI
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Connaissance des formules certifiées FOMI pour la fertilisation au Burundi.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-xl border-2 border-forest-500 bg-forest-50/40 space-y-2">
+                        <span class="px-2.5 py-1 bg-forest-700 text-white rounded font-extrabold text-xs">FOMI Imbura</span>
+                        <h4 class="text-sm font-bold text-slate-900">NPK 10-20-10 + 6S + 5CaO</h4>
+                        <p class="text-xs text-slate-600">Engrais de fond pour corriger l'acidité et renforcer l'enracinement.</p>
+                    </div>
+                    <div class="p-4 rounded-xl border-2 border-amber-500 bg-amber-50/40 space-y-2">
+                        <span class="px-2.5 py-1 bg-ochre-700 text-white rounded font-extrabold text-xs">FOMI Bagara</span>
+                        <h4 class="text-sm font-bold text-slate-900">NPK 18-10-10 + 4S</h4>
+                        <p class="text-xs text-slate-600">Engrais d'entretien riche en Azote pour la croissance rapide du Maïs et du Caféier.</p>
+                    </div>
+                    <div class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 space-y-2">
+                        <span class="px-2.5 py-1 bg-emerald-700 text-white rounded font-extrabold text-xs">FOMI Kula</span>
+                        <h4 class="text-sm font-bold text-slate-900">NPK 15-10-12 + 5CaO</h4>
+                        <p class="text-xs text-slate-600">Formulation spéciale pour tubercules (Manioc, Pomme de terre) et régimes de Bananiers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SOS KAZA — SIMULATION USSD *710# -->
+        <section id="screen-sos" class="hidden ">
+            <div class="bg-gradient-to-r from-red-900 to-red-800 rounded-2xl p-6 text-white shadow-lg">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div>
+                        <span class="px-3 py-1 bg-red-400 text-red-900 rounded-full text-xs font-black uppercase">USSD *710# · SMS · WhatsApp</span>
+                        <h2 class="text-2xl font-black mt-2 flex items-center gap-2">
+                            <i class="fa-solid fa-phone-volume text-red-300 animate-pulse"></i> SOS Kaza — Urgences Agricoles
+                        </h2>
+                        <p class="text-xs text-red-100 mt-1">Signalement d'urgence sanitaire pour les éleveurs et agriculteurs. Fonctionne hors connexion via SMS.</p>
+                    </div>
+                    <div class="bg-black/40 rounded-xl px-4 py-3 text-center border border-red-500">
+                        <div class="text-2xl font-black text-amber-400">*710#</div>
+                        <div class="text-[10px] text-red-200 mt-1">Code USSD (tous réseaux)</div>
+                        <div class="text-[9px] text-red-300">Lumitel · Airtel · Econet · ONATEL</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTE OFFLINE -->
+            <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-4 flex items-start gap-3">
+                <i class="fa-solid fa-wifi-slash text-emerald-600 text-xl mt-0.5 flex-shrink-0"></i>
+                <div>
+                    <p class="font-extrabold text-emerald-900 text-sm">Ce module fonctionne SANS internet</p>
+                    <p class="text-xs text-emerald-700 mt-1">Le formulaire SOS enregistre votre alerte localement. Le SMS d'urgence s'envoie via WhatsApp ou l'application SMS de votre téléphone dès que vous avez du réseau GSM (même sans internet).</p>
+                </div>
+            </div>
+
+            <!-- SIMULATEUR USSD -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- TÉLÉPHONE USSD SIMULÉ -->
+                <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-xl border border-slate-700">
+                    <div class="bg-slate-800 px-4 py-3 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-300">📱 Simulation *710# — Écran USSD</span>
+                        <button onclick="ussdApp.reset()" class="text-xs text-red-400 hover:text-red-300 font-bold">↺ Recommencer</button>
+                    </div>
+                    <div id="ussd-screen" class="p-4 font-mono text-sm text-green-400 min-h-48 leading-relaxed whitespace-pre-wrap">
+                    </div>
+                    <div class="flex border-t border-slate-700">
+                        <input id="ussd-input" type="text" placeholder="Tapez 1, 2, 3... ou votre province" 
+                            class="flex-1 bg-slate-800 text-white px-4 py-3 text-sm outline-none placeholder-slate-500"
+                            onkeydown="if(event.key==='Enter') ussdApp.respond()">
+                        <button onclick="ussdApp.respond()" class="px-4 py-3 bg-green-700 hover:bg-green-600 text-white text-xs font-extrabold">
+                            OK ➤
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FORMULAIRE SOS WEB -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 bg-red-800 text-white">
+                        <h3 class="font-extrabold text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-red-300"></i> Formulaire SOS Kaza (Web)
+                        </h3>
+                        <p class="text-xs text-red-200 mt-1">Remplissez et envoyez par WhatsApp ou SMS — fonctionne offline</p>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Langue / Ururimi</label>
+                                <select id="sos-lang" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                    <option value="fr">🇧🇮 Français</option>
+                                    <option value="rn">🇧🇮 Kirundi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Type / Ubwoko</label>
+                                <select id="sos-type" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                    <option value="elevage">🐄 Élevage / Ubworozi</option>
+                                    <option value="culture">🌱 Agriculture / Uburimyi</option>
+                                    <option value="climat">🌧️ Climat / Ikirere</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Animal / Culture affecté(e)</label>
+                            <select id="sos-animal" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                <option value="Vache (Inka)">🐄 Vache / Inka</option>
+                                <option value="Porc (Ingurube)">🐷 Porc / Ingurube</option>
+                                <option value="Chèvre (Ihene)">🐐 Chèvre / Ihene</option>
+                                <option value="Mouton (Intama)">🐑 Mouton / Intama</option>
+                                <option value="Poule (Inkoko)">🐔 Poule / Inkoko</option>
+                                <option value="Lapin (Ikimanyi)">🐇 Lapin / Ikimanyi</option>
+                                <option value="Manioc (Imyumbati)">🌿 Manioc / Imyumbati</option>
+                                <option value="Maïs (Ibigori)">🌽 Maïs / Ibigori</option>
+                                <option value="Banane (Ibitoke)">🍌 Banane / Ibitoke</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Symptôme / Ikibazo</label>
+                            <select id="sos-symptom" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                <option value="Mort subite / Gupfa bitunguranye">Mort subite / Gupfa bitunguranye</option>
+                                <option value="Forte fièvre / Ubushuhe bwinshi">Forte fièvre / Ubushuhe bwinshi</option>
+                                <option value="Boutons/Lésions / Amabara">Boutons/Lésions / Amabara</option>
+                                <option value="Diarrhée sévère / Gusara bikabije">Diarrhée sévère / Gusara bikabije</option>
+                                <option value="Flétrissement / Gukandamira">Flétrissement / Gukandamira</option>
+                                <option value="Taches sur feuilles / Amabara mu mababi">Taches feuilles / Amabara mu mababi</option>
+                                <option value="Autre / Ikindi">Autre / Ikindi</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Province</label>
+                                <select id="sos-province" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                    <option>Bujumbura</option><option>Gitega</option>
+                                    <option>Butanyerera</option><option>Burunga</option>
+                                    <option>Buhumuza</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Commune / Komine</label>
+                                <input type="text" id="sos-commune" placeholder="Ex: Ngozi" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Votre téléphone (+257)</label>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-2 bg-slate-100 border border-slate-300 rounded-lg text-xs font-black">+257</span>
+                                <input type="tel" id="sos-phone" maxlength="8" placeholder="79 000 000" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs" oninput="this.value=this.value.replace(/\D/g,'').slice(0,8)">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="ussdApp.sendWhatsApp()" class="py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 shadow">
+                                <i class="fa-brands fa-whatsapp"></i> Envoyer WhatsApp
+                            </button>
+                            <button onclick="ussdApp.sendSMS()" class="py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 shadow">
+                                <i class="fa-solid fa-comment-sms"></i> Envoyer SMS
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MESSAGES SMS EXEMPLES -->
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-5 space-y-4">
+                <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-comment-dots text-blue-600"></i> Exemples de Messages SMS Automatiques (Bilingues)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-white border border-blue-200 rounded-xl p-3">
+                        <div class="text-[10px] font-black text-blue-700 mb-2">SMS → Agent DPAE (Alerte urgente)</div>
+                        <div class="text-xs text-slate-700 font-mono leading-relaxed bg-blue-50 p-2 rounded">
+                            [SOS Kaza] Umuvuzi, umworozi wo muri [Gitega, Mutaho] aratabaza. Inka yiwe irwaye [Umuriro mwinshi]. Nomero: +257 7X XXX XXX. Genda ubatabare vuba.
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-2 italic">Traduction : Docteur, un éleveur de [Gitega, Mutaho] demande de l'aide. Sa vache a [forte fièvre]. Numéro: +257. Intervenez rapidement.</div>
+                    </div>
+                    <div class="bg-white border border-green-200 rounded-xl p-3">
+                        <div class="text-[10px] font-black text-green-700 mb-2">SMS → Éleveur (Accusé réception)</div>
+                        <div class="text-xs text-slate-700 font-mono leading-relaxed bg-green-50 p-2 rounded">
+                            SOS Kaza yakiriye ubutabazi bwawe. Twabwiye umuhinga wo muri Komine yanyu. Mu kurindira, itandukanye igitungwa kirwaye n'ibindi.
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-2 italic">SOS Kaza a reçu votre alerte. L'agent de votre commune a été prévenu. En attendant, isolez l'animal malade.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTACTS DPAE PAR PROVINCE -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+                <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-address-book text-forest-700"></i> Contacts DPAE / BPEAE par Province
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                        <div class="font-extrabold text-forest-800 mb-2">🏛️ BPEAE Buhumuza</div>
+                        <div class="text-slate-600">Ir. Melchiade Ntahondereye</div>
+                        <div class="text-slate-500 mt-1">Chef-lieu : Cankuzo</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                        <div class="font-extrabold text-forest-800 mb-2">🏛️ BPEAE Bujumbura</div>
+                        <div class="text-slate-600">Ir. Dieudonné Nahimana</div>
+                        <div class="text-slate-500 mt-1">Chef-lieu : Mukaza</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                        <div class="font-extrabold text-forest-800 mb-2">🏛️ BPEAE Burunga</div>
+                        <div class="text-slate-600">Ir. Jean Marie Congera</div>
+                        <div class="text-slate-500 mt-1">Chef-lieu : Makamba</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                        <div class="font-extrabold text-forest-800 mb-2">🏛️ BPEAE Butanyerera</div>
+                        <div class="text-slate-600">Ir. Adélin Niyonsaba</div>
+                        <div class="text-slate-500 mt-1">Chef-lieu : Ngozi</div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                        <div class="font-extrabord text-forest-800 mb-2">🏛️ BPEAE Gitega</div>
+                        <div class="text-slate-600">Ir. Jean Séverin Sinzobatohana</div>
+                        <div class="text-slate-500 mt-1">Chef-lieu : Gitega</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5b. ECRAN PRIX MARCHÉS OFFICIELS & SOURCES -->
+        <section id="screen-prices" class="hidden ">
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg">
+                <span class="px-3 py-1 bg-amber-400 text-slate-900 rounded-full text-xs font-black uppercase">SIM · INSBU · PAM · FAO</span>
+                <h2 class="text-2xl font-black mt-2 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-amber-400"></i> Prix des Marchés Officiels & Sources de Données
+                </h2>
+                <p class="text-xs text-slate-300 mt-1">Données collectées par le SIM/MINEAGRIE, l'INSBU, la PAM-VAM et la FAO Burundi. Mise à jour hebdomadaire.</p>
+            </div>
+
+            <!-- GRILLE PRIX CULTURES -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-200">
+                    <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-tags text-amber-500"></i> Prix de Référence par Marché (BIF) — 2025/2026
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="bg-forest-800 text-white">
+                                <th class="text-left px-4 py-3 font-extrabold">Produit</th>
+                                <th class="text-right px-4 py-3 font-extrabold">Prix Min</th>
+                                <th class="text-right px-4 py-3 font-extrabold">Prix Max</th>
+                                <th class="text-right px-4 py-3 font-bold text-amber-300">Prix Moyen</th>
+                                <th class="text-left px-4 py-3 font-bold">Marché Réf.</th>
+                                <th class="text-left px-4 py-3 font-bold">Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prix-table-body" class="divide-y divide-slate-100">
+                            <!-- Généré dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SOURCES OFFICIELLES -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+                <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-building-columns text-forest-700"></i> Sources Officielles de Données Agricoles au Burundi
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="sources-grid">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </div>
+
+            <!-- SYSTÈME AGENTS DE TERRAIN -->
+            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl border border-amber-200 p-5 space-y-4">
+                <h3 class="font-extrabold text-amber-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-people-carry-box text-amber-700"></i> Système Agents de Terrain — Pour Agriculteurs sans Smartphone
+                </h3>
+                <p class="text-xs text-amber-800">Les agriculteurs sans téléphone intelligent peuvent utiliser un <strong>Agent de Terrain</strong> qui publie leurs récoltes à leur place et reçoit une commission de 3% sur chaque vente réalisée.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-white rounded-xl p-4 border border-amber-200 text-center">
+                        <div class="text-3xl mb-2">📱</div>
+                        <div class="font-extrabold text-slate-900 text-xs mb-1">Étape 1</div>
+                        <p class="text-xs text-slate-600">L'agriculteur <strong>appelle ou contacte</strong> l'agent le plus proche quand sa récolte est prête.</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-amber-200 text-center">
+                        <div class="text-3xl mb-2">📸</div>
+                        <div class="font-extrabold text-slate-900 text-xs mb-1">Étape 2</div>
+                        <p class="text-xs text-slate-600">L'agent <strong>se déplace au champ</strong>, prend les photos, note la quantité et le prix souhaité.</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-amber-200 text-center">
+                        <div class="text-3xl mb-2">✅</div>
+                        <div class="font-extrabold text-slate-900 text-xs mb-1">Étape 3</div>
+                        <p class="text-xs text-slate-600">L'agent <strong>publie l'annonce</strong> sur UBUMWE Agri. L'argent va directement à l'agriculteur.</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-amber-200">
+                    <h4 class="font-extrabold text-amber-900 text-xs mb-3">💰 Modèles de Rémunération des Agents (Mobile Money)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div class="space-y-1">
+                            <div class="font-bold text-slate-800">Commission par vente</div>
+                            <div class="text-slate-600">3% du prix de la récolte vendue. Payé via Lumicash/Ecocash après confirmation.</div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="font-bold text-slate-800">Frais fixes</div>
+                            <div class="text-slate-600">Transport + bonus fixe par déplacement validé. Idéal zones rurales éloignées.</div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="font-bold text-slate-800">Abonnement coopérative</div>
+                            <div class="text-slate-600">Paiement mensuel groupé par coopérative pour 2 visites/mois par membre.</div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="app.openAuthModal('register')" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold rounded-xl text-xs flex items-center justify-center gap-2 shadow">
+                    <i class="fa-solid fa-user-plus"></i> Devenir Agent de Terrain — Créer un Compte
+                </button>
+            </div>
+
+            <!-- MARCHÉS PAR PROVINCE -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+                <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-forest-700"></i> Marchés de Référence par Province (DPAE)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3" id="marches-grid">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 6. ECRAN DIAGNOSTIC MALADIES -->
+        <section id="screen-diseases" class="hidden ">
+            <div class="bg-gradient-to-r from-red-900 to-red-800 rounded-2xl p-6 text-white shadow-lg">
+                <span class="px-3 py-1 bg-red-400 text-red-900 rounded-full text-xs font-black uppercase">Base de Donnees FAO / OIE / CABI</span>
+                <h2 class="text-2xl font-black mt-2 flex items-center gap-2">
+                    <i class="fa-solid fa-virus text-red-300"></i> Diagnostic Maladies — Plantes & Animaux
+                </h2>
+                <p class="text-xs text-red-100 mt-1">Identifiez les maladies, les symptomes et les remedes adequats pour vos cultures et votre betail.</p>
+            </div>
+
+            <!-- RECHERCHE & FILTRES -->
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm space-y-3">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="disease-search" oninput="app.filterDiseases()" placeholder="Rechercher une maladie, une plante, un symptome..."
+                        class="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-red-400 text-sm outline-none">
+                    <div class="flex gap-2">
+                        <button onclick="app.filterDiseaseType('all')" id="dtype-all" class="px-4 py-2 rounded-xl text-xs font-bold bg-red-700 text-white">Tout</button>
+                        <button onclick="app.filterDiseaseType('plant')" id="dtype-plant" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">🌱 Plantes</button>
+                        <button onclick="app.filterDiseaseType('animal')" id="dtype-animal" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">🐄 Animaux</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRILLE DES MALADIES -->
+            <div id="diseases-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Genere dynamiquement par app.js -->
+            </div>
+
+            <!-- MODAL DETAIL MALADIE -->
+            <div id="disease-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+                <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                    <div id="disease-modal-content" class="p-6 space-y-4"></div>
+                    <div class="p-4 border-t border-slate-100 text-right">
+                        <button onclick="document.getElementById('disease-modal').classList.add('hidden')"
+                            class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm">
+                            Fermer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. ECRAN TABLEAU DE BORD ADMIN (PROTÉGÉ) -->
+        <section id="screen-admin" class="hidden ">
+            <div class="bg-amber-950 text-amber-100 p-6 rounded-2xl shadow-lg border border-amber-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <span class="px-2.5 py-1 bg-amber-400 text-slate-900 font-black text-[10px] rounded uppercase">Espace Protégé</span>
+                    <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield text-amber-400"></i> Tableau de Bord Administrateur
+                    </h2>
+                    <p class="text-xs text-amber-200" data-i18n="admin_subtitle">Validation des annonces du marché, gestion des rôles et contrôle du système.</p>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="app.toggleDemoAdminRole()" class="px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold rounded-xl text-xs shadow transition">
+                        <i class="fa-solid fa-toggle-on mr-1"></i> Mode Test Admin
+                    </button>
+                </div>
+            </div>
+
+            <!-- STATISTIQUES ADMIN -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase" data-i18n="admin_pending">Produits en Attente</span>
+                    <span id="admin-pending-count" class="block text-2xl font-black text-amber-600">0</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase" data-i18n="admin_approved">Produits Approuvés</span>
+                    <span id="admin-approved-count" class="block text-2xl font-black text-emerald-600">0</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase" data-i18n="admin_credits">Demandes de Crédit</span>
+                    <span id="admin-credits-count" class="block text-2xl font-black text-forest-700">0</span>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Mode Base de Données</span>
+                    <span id="admin-db-mode" class="block text-xs font-black text-slate-700 mt-2">Supabase + Local</span>
+                </div>
+            </div>
+
+            <!-- LISTE DES PRODUITS À MODÉRER -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="font-extrabold text-slate-900 text-sm">File de Validation des Produits (Status: Pending)</h3>
+                    <span class="text-xs text-slate-500">Les annonces validées deviennent immédiatement publiques.</span>
+                </div>
+
+                <div id="admin-pending-products-list" class="divide-y divide-slate-100">
+                    <!-- Injecté en JS -->
+                </div>
+            </div>
+
+            <!-- RAPPORT SÉCURITÉ EN TEMPS RÉEL -->
+            <div class="bg-slate-900 rounded-2xl p-5 text-white space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-extrabold text-amber-400 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-400"></i> Rapport Sécurité — 3 Couches Actives
+                    </h3>
+                    <button onclick="app.refreshSecurityReport()" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-right"></i> Actualiser
+                    </button>
+                </div>
+                <div id="security-report-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-slate-800 rounded-xl p-3 border border-slate-700 text-center">
+                        <div class="text-emerald-400 font-black text-lg" id="sec-layer1">🟢 ACTIF</div>
+                        <div class="text-xs text-slate-400 mt-1 font-bold">Couche 1 — Détecteur</div>
+                        <div class="text-[10px] text-slate-500">Scan XSS · Bot · Rate limit</div>
+                    </div>
+                    <div class="bg-slate-800 rounded-xl p-3 border border-slate-700 text-center">
+                        <div class="text-emerald-400 font-black text-lg" id="sec-layer2">🟢 ACTIF</div>
+                        <div class="text-xs text-slate-400 mt-1 font-bold">Couche 2 — Analyste</div>
+                        <div class="text-[10px] text-slate-500">Score menace · Logs · Historique</div>
+                    </div>
+                    <div class="bg-slate-800 rounded-xl p-3 border border-slate-700 text-center">
+                        <div class="text-emerald-400 font-black text-lg" id="sec-layer3">🟢 ACTIF</div>
+                        <div class="text-xs text-slate-400 mt-1 font-bold">Couche 3 — Défenseur</div>
+                        <div class="text-[10px] text-slate-500">Blocage · Honeypot · Sanitisation</div>
+                    </div>
+                </div>
+                <div id="security-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+                    <div class="bg-slate-800 rounded-lg p-2">
+                        <div class="text-amber-400 font-black text-lg" id="sec-total">0</div>
+                        <div class="text-slate-400">Menaces détectées</div>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-2">
+                        <div class="text-red-400 font-black text-lg" id="sec-blocked">0</div>
+                        <div class="text-slate-400">Sessions bloquées</div>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-2">
+                        <div class="text-orange-400 font-black text-lg" id="sec-xss">0</div>
+                        <div class="text-slate-400">Tentatives XSS</div>
+                    </div>
+                    <div class="bg-slate-800 rounded-lg p-2">
+                        <div class="text-purple-400 font-black text-lg" id="sec-24h">0</div>
+                        <div class="text-slate-400">Dernières 24h</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    </main>
+
+
+    <!-- MODALE AUTHENTIFICATION (LOGIN / REGISTER) -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 id="auth-modal-title" class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-user-lock text-forest-700"></i> Inscription / Connexion
+                </h3>
+                <button onclick="app.closeAuthModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Formulaire Login / Register -->
+            <form id="auth-form" onsubmit="app.handleAuthSubmit(event)" class="space-y-4">
+                <input type="hidden" id="auth-mode" value="login">
+
+                <div id="register-fields-group" class="space-y-4 hidden">
+                    <div>
+                        <label for="auth-full-name" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Nom Complet *</label>
+                        <input type="text" id="auth-full-name" placeholder="Ex: Nkurunziza Jean-Marie" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold outline-none focus:ring-2 focus:ring-forest-500">
+                    </div>
+
+                    <div>
+                        <label for="auth-role" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Rôle Utilisateur *</label>
+                        <select id="auth-role" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white focus:ring-2 focus:ring-forest-500">
+                            <option value="agriculteur">🌾 Agriculteur / Producteur</option>
+                            <option value="eleveur">🐄 Éleveur de Bétail</option>
+                            <option value="client">🛒 Client / Acheteur</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Téléphone Burundi *</label>
+                        <div class="flex items-center gap-2">
+                            <div class="px-3 py-2.5 bg-slate-100 border border-slate-300 rounded-xl text-xs font-black text-slate-800 select-none">+257</div>
+                            <input type="tel" id="auth-phone" maxlength="8" placeholder="79 000 000"
+                                class="flex-1 px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold"
+                                oninput="this.value=this.value.replace(/\D/g,'').slice(0,8)">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">8 chiffres après +257 (ex: 79 000 000 pour Lumitel)</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="auth-email" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Adresse Email *</label>
+                    <input type="email" id="auth-email" required placeholder="nom@exemple.bi" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold outline-none focus:ring-2 focus:ring-forest-500">
+                </div>
+
+                <div>
+                    <label for="auth-password" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Mot de Passe *</label>
+                    <input type="password" id="auth-password" required minlength="6" placeholder="••••••••" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold outline-none focus:ring-2 focus:ring-forest-500">
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-forest-700 hover:bg-forest-800 text-white font-extrabold rounded-xl shadow transition flex items-center justify-center gap-2 text-xs">
+                    <span>Se Connecter</span>
+                </button>
+            </form>
+
+            <div class="text-center pt-2 border-t border-slate-100">
+                <button id="auth-toggle-btn" onclick="app.toggleAuthMode()" class="text-xs font-bold text-forest-700 hover:underline">
+                    Pas encore de compte ? S'inscrire ici
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODALE DÉPÔT DE PRODUIT MARKETPLACE -->
+    <div id="deposit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-basket-shopping text-amber-500"></i> Déposer un Produit ou Animal
+                </h3>
+                <button onclick="app.closeDepositModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="product-deposit-form" name="product-post" data-netlify="true" onsubmit="app.handleDepositSubmit(event)" class="space-y-4">
+                <input type="hidden" name="form-name" value="product-post">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="prod-type" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Type *</label>
+                        <select id="prod-type" name="type" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white">
+                            <option value="vegetal">🌱 Produit Végétal (Récolte)</option>
+                            <option value="animal">🐄 Animal / Élevage</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="prod-category" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Catégorie *</label>
+                        <input type="text" id="prod-category" name="category" required placeholder="Ex: Céréales, Bovin..." class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="prod-name" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Nom du Produit / Animal *</label>
+                    <input type="text" id="prod-name" name="name" required placeholder="Ex: 2 Vaches Ankolé de Race" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label for="prod-quantity" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Quantité *</label>
+                        <input type="number" step="0.1" min="1" id="prod-quantity" name="quantity" required value="1" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label for="prod-unit" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Unité</label>
+                        <select id="prod-unit" name="unit" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white">
+                            <option value="unité">Unité(s)</option>
+                            <option value="kg">Sacs / kg</option>
+                            <option value="Tonne">Tonne(s)</option>
+                            <option value="Régime">Régime(s)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="prod-price" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Prix Unitaire (FB) *</label>
+                        <input type="number" min="100" id="prod-price" name="price" required placeholder="450000" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="prod-province" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Province *</label>
+                        <select id="prod-province" name="province" required onchange="updateCommunes(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white">
+                            <option value="GITEGA">Gitega</option>
+                            <option value="BUHUMUZA">Buhumuza</option>
+                            <option value="BUJUMBURA">Bujumbura</option>
+                            <option value="BURUNGA">Burunga</option>
+                            <option value="BUTANYERERA">Butanyerera</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="prod-phone" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">WhatsApp / Tél Burundi *</label>
+                        <input type="text" id="prod-phone" name="whatsapp_phone" required placeholder="+257 79 123 456" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="prod-commune" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Commune</label>
+                    <select id="deposit-commune" name="commune" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white">
+                        <option value="">-- Choisir province d'abord --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="prod-image-url" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Lien de la Photo (URL)</label>
+                    <input type="url" id="prod-image-url" name="image_url" placeholder="https://images.unsplash.com/photo-..." class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                </div>
+
+                <div>
+                    <label for="prod-description" class="block text-xs font-extrabold text-slate-700 uppercase mb-1">Description Détaillée</label>
+                    <textarea id="prod-description" name="description" rows="3" placeholder="État du stock, conditions de livraison, etc." class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold resize-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-amber-400 hover:bg-amber-300 text-forest-900 font-black rounded-xl shadow transition flex items-center justify-center gap-2 text-xs">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Publier l'Annonce pour Validation</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- FOOTER PERMANENT -->
+    <footer class="bg-forest-900 text-slate-300 border-t border-forest-800 py-5 px-4 text-center text-xs">
+        <div class="max-w-6xl mx-auto space-y-1.5">
+            <p class="font-bold text-amber-400">
+                Données conformes à la Loi Organique n° 1/05 du 16 mars 2023 (Réforme 2025) - Partenariat FOMI
+            </p>
+            <p class="text-[11px] text-emerald-300">
+                UBUMWE Agri • Plateforme Intégrée PWA & Supabase (Score Crédit, Marketplace & Santé Animale)
+            </p>
+        </div>
+    </footer>
+
+    <!-- TRADUCTIONS MULTILINGUES (chargé EN PREMIER) -->
+    <script src="translations.js"></script>
+
+    <!-- SYSTÈME DE SÉCURITÉ (chargé après translations) -->
+    <script src="security.js"></script>
+
+    <!-- BASE DE DONNEES MALADIES OFFLINE -->
+    <script src="diseases_db.js"></script>
+
+    <!-- APPLICATION LOGIC SCRIPT -->
+    <script src="app.js"></script>
+
+    <!-- CHAT FAB + PANEL -->
+    <button id="chat-fab" onclick="chatApp.toggle()" title="Chat & Messages">
+        <i class="fa-solid fa-comments"></i>
+        <span class="chat-fab-badge" id="chat-unread" style="display:none">0</span>
+    </button>
+
+    <div id="chat-panel">
+        <div class="chat-header">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-sm">
+                    <i class="fa-solid fa-comments text-xs"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-sm">Messages</div>
+                    <div class="text-[10px] text-emerald-300" id="chat-status">Agriculteurs & Clients en ligne</div>
+                </div>
+            </div>
+            <button onclick="chatApp.toggle()" class="text-white opacity-70 hover:opacity-100 text-lg">&times;</button>
+        </div>
+
+        <!-- Tabs conversations -->
+        <div class="flex border-b border-slate-100">
+            <button onclick="chatApp.showTab('general')" id="tab-general"
+                class="flex-1 py-2 text-xs font-bold text-forest-700 border-b-2 border-forest-700">
+                💬 Général
+            </button>
+            <button onclick="chatApp.showTab('vendeurs')" id="tab-vendeurs"
+                class="flex-1 py-2 text-xs font-semibold text-slate-400 hover:text-slate-600">
+                🤝 Vendeurs
+            </button>
+            <button onclick="chatApp.showTab('ia')" id="tab-ia"
+                class="flex-1 py-2 text-xs font-semibold text-slate-400 hover:text-slate-600">
+                🤖 IA Conseil
+            </button>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages injectés par JS -->
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chat-input"
+                placeholder="Écrire un message..." onkeydown="if(event.key==='Enter') chatApp.send()">
+            <button class="chat-send" onclick="chatApp.send()">
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker enregistré:', reg.scope))
+                    .catch(err => console.error('Erreur SW:', err));
+            });
+        }
+
+        // ── CHAT APP ──────────────────────────────────────
+        const chatApp = {
+            open: false,
+            currentTab: 'general',
+            unread: 0,
+            LS_KEY: 'UBUMWE_CHAT_V1',
+
+            demoMessages: {
+                general: [
+                    { from: 'Nkurunziza J.', text: 'Bonjour ! Je vends du manioc frais à Gitega. 800 FB/kg.', time: '09:14', received: true },
+                    { from: 'Malaika F.', text: 'Est-ce que vous livrez à Bujumbura ?', time: '09:18', received: true },
+                    { from: 'Nkurunziza J.', text: 'Oui, minimum 100 kg. Contactez-moi sur WhatsApp.', time: '09:20', received: true },
+                ],
+                vendeurs: [
+                    { from: 'Hakizimana P.', text: 'Mes poules pondeuses sont disponibles. 50 unités à 18 000 FB chacune.', time: '08:30', received: true },
+                    { from: 'Uwimana C.', text: 'Prix négociable pour achat en gros ?', time: '08:45', received: true },
+                    { from: 'Hakizimana P.', text: 'Oui pour 20+ unités je fais -10%.', time: '08:47', received: true },
+                ],
+                ia: [
+                    { from: '🤖 UBUMWE IA', text: 'Bonjour ! 👋 Je suis l\'assistant IA agricole de UBUMWE Agri.\nPosez votre question en français ou en Kirundi, je vous réponds !\n\nExemples :\n• "Quel engrais pour le maïs ?"\n• "Ma vache a de la fièvre"\n• "Prix du haricot à Gitega"\n• "Quand planter le sorgho ?"', time: 'now', received: true },
+                ]
+            },
+
+            toggle() {
+                this.open = !this.open;
+                const panel = document.getElementById('chat-panel');
+                panel.classList.toggle('open', this.open);
+                if (this.open) {
+                    this.unread = 0;
+                    const badge = document.getElementById('chat-unread');
+                    if (badge) badge.style.display = 'none';
+                    this.renderMessages();
+                    setTimeout(() => document.getElementById('chat-input')?.focus(), 300);
+                }
+            },
+
+            showTab(tab) {
+                this.currentTab = tab;
+                ['general','vendeurs','ia'].forEach(t => {
+                    const btn = document.getElementById('tab-' + t);
+                    if (btn) {
+                        btn.className = t === tab
+                            ? 'flex-1 py-2 text-xs font-bold text-forest-700 border-b-2 border-forest-700'
+                            : 'flex-1 py-2 text-xs font-semibold text-slate-400 hover:text-slate-600';
+                    }
+                });
+                this.renderMessages();
+            },
+
+            renderMessages() {
+                const container = document.getElementById('chat-messages');
+                if (!container) return;
+                const msgs = this.demoMessages[this.currentTab] || [];
+                container.innerHTML = msgs.map(m => `
+                    <div class="chat-msg ${m.received ? 'received' : 'sent'}">
+                        ${m.received ? `<div style="font-size:9px;font-weight:700;color:#64748b;margin-bottom:2px">${m.from}</div>` : ''}
+                        ${m.text}
+                        <div class="time">${m.time}</div>
+                    </div>
+                `).join('');
+                container.scrollTop = container.scrollHeight;
+            },
+
+            send() {
+                const input = document.getElementById('chat-input');
+                if (!input || !input.value.trim()) return;
+                const text = input.value.trim();
+                const now = new Date();
+                const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+                this.demoMessages[this.currentTab].push({ from: 'Moi', text, time, received: false });
+                input.value = '';
+                this.renderMessages();
+
+                // Réponse IA automatique si onglet IA
+                if (this.currentTab === 'ia') {
+                    setTimeout(() => {
+                        const reply = this.getIAReply(text);
+                        this.demoMessages.ia.push({ from: '🤖 UBUMWE IA', text: reply, time, received: true });
+                        this.renderMessages();
+                    }, 800);
+                } else {
+                    // Réponse simulée
+                    setTimeout(() => {
+                        const replies = [
+                            'Merci pour votre message ! Je vous réponds bientôt.',
+                            'D\'accord, je note votre demande.',
+                            'Pouvez-vous préciser la quantité souhaitée ?',
+                            'Je suis disponible pour une discussion WhatsApp.',
+                        ];
+                        const reply = replies[Math.floor(Math.random() * replies.length)];
+                        const names = ['Hakizimana', 'Nkurunziza', 'Uwimana', 'Malaika'];
+                        const name = names[Math.floor(Math.random() * names.length)];
+                        this.demoMessages[this.currentTab].push({ from: name, text: reply, time, received: true });
+                        this.renderMessages();
+                        // Badge si chat fermé
+                        if (!this.open) {
+                            this.unread++;
+                            const badge = document.getElementById('chat-unread');
+                            if (badge) { badge.textContent = this.unread; badge.style.display = 'flex'; }
+                        }
+                    }, 1500);
+                }
+            },
+
+            getIAReply(question) {
+                const q = question.toLowerCase().trim();
+
+                // ── Détection automatique de la langue ───────────────────────
+                const frenchWords = ['comment','pourquoi','quoi','quand','où','quel','quelle','bonjour','merci',
+                    'je','mon','ma','mes','vous','nous','votre','notre','est','sont','avoir','faire',
+                    'maladie','engrais','culture','animal','vache','poule','porc','lapin','chèvre',
+                    'prix','marché','crédit','score','saison','province','commune'];
+                const kirWords = ['ibigori','ibiharage','imyumbati','ibitoke','ikawa','umuceri',
+                    'inka','inkoko','ingurube','ihene','ikimanyi','mwiriwe','muraho','ndabona',
+                    'inguzanyo','uburimyi','ubworozi','indwara','ifumbire','angahe','nigahe'];
+
+                const frScore = frenchWords.filter(w => q.includes(w)).length;
+                const rnScore = kirWords.filter(w => q.includes(w)).length;
+                const isFrench = frScore > rnScore || frScore >= 1;
+
+                // ── Dictionnaire cultures (FR + Kirundi) ─────────────────────
+                const cultureMap = {
+                    'ibigori':'Maïs','mais':'Maïs','maïs':'Maïs','corn':'Maïs',
+                    'ibiharage':'Haricot','haricot':'Haricot','haricots':'Haricot','bean':'Haricot',
+                    'imyumbati':'Manioc','manioc':'Manioc','cassava':'Manioc',
+                    'ibitoke':'Banane','banane':'Banane','bananes':'Banane','banana':'Banane',
+                    'ikawa':'Café','cafe':'Café','café':'Café','coffee':'Café',
+                    'umuceri':'Riz','riz':'Riz','rice':'Riz',
+                    'amasaka':'Sorgho','sorgho':'Sorgho',
+                    'ibirayi':'Pomme de terre','pomme de terre':'Pomme de terre',
+                    'ite':'Thé','thé':'Thé','the':'Thé',
+                    'tomate':'Tomate','tomato':'Tomate',
+                    'chou':'Chou','oignon':'Oignon',
+                    'palmier':'Palmier à huile','canne':'Canne à sucre',
+                };
+                const priceWords = ['angahe','bingahe','igiciro','prix','combien','coût','cout','tarif','ngahe'];
+                const hasPriceIntent = priceWords.some(w => q.includes(w));
+                const hasFomiIntent = q.includes('fomi') || q.includes('ifumbire') || q.includes('engrais') || q.includes('fertiliser') || q.includes('intrants');
+
+                let detectedCulture = null;
+                for (const [kw, cult] of Object.entries(cultureMap)) {
+                    if (q.includes(kw)) { detectedCulture = cult; break; }
+                }
+
+                // ── RÉPONSE FOMI + PRIX ──────────────────────────────────────
+                if (detectedCulture && (hasPriceIntent || hasFomiIntent)) {
+                    const fomi = calculateRealFomiNeeds(detectedCulture, 1);
+                    const fmt = n => new Intl.NumberFormat('fr-FR').format(n);
+                    if (isFrench) {
+                        return `🌿 Engrais FOMI pour ${detectedCulture} :\n`
+                            + `Produit recommandé : ${fomi.produit}\n`
+                            + `Prix : ${fmt(fomi.prix_sac_bif)} BIF par sac de 25 kg\n`
+                            + `Quantité : ${fomi.sacs_ha} sacs par hectare\n\n`
+                            + `📌 Exemple pour 1 ha : ${fomi.sacs_total} sacs = ${fomi.cout_display}\n`
+                            + `🔗 Voir le catalogue : fomi.bi/fr`;
+                    } else {
+                        return `🌿 FOMI yo gutera ${detectedCulture} :\n`
+                            + `Igiciro : ${fmt(fomi.prix_sac_bif)} BIF ku mufuko wa 25kg\n`
+                            + `📦 ${detectedCulture} igomba ${fomi.sacs_ha} imifuko ku hectare\n`
+                            + `🔗 Reba catalogue: fomi.bi/fr`;
+                    }
+                }
+
+                // ── MALADIES ─────────────────────────────────────────────────
+                const diseaseKeywordsRN = ['kirabiranya','umutore','amakore','muyago','guhitana amaraso','ikirunguri','umuyago','igicucu','indwara','ubushuhe'];
+                const diseaseKeywordsFR = ['maladie','symptome','symptôme','fletrissement','pourriture','fievre','fièvre','tache','bouton','lésion','lesion','infection','virus','parasite','bactérie'];
+                const allDiseaseKw = [...diseaseKeywordsRN, ...diseaseKeywordsFR];
+                const hasDiseaseKw = allDiseaseKw.some(kw => q.includes(kw));
+
+                if (hasDiseaseKw) {
+                    const results = searchDiseaseByKeyword(q);
+                    if (results.length > 0) {
+                        const d = results[0];
+                        if (isFrench) {
+                            const symp = d.symptomes || d.symptoms || '';
+                            const prev = d.prevention_rn ? d.prevention : d.prevention || '';
+                            const trt  = d.traitement || d.treatment || '';
+                            return `🦠 Maladie détectée : ${d.nom || d.name}\n\n`
+                                + `📋 Symptômes : ${symp}\n\n`
+                                + `🛡️ Prévention : ${d.prevention || prev}\n\n`
+                                + `💊 Traitement : ${trt}\n\n`
+                                + `📚 Source : ${d.source || 'ISABU/OEB'}`;
+                        } else {
+                            return `🦠 Indwara : ${d.nom_rn || d.nom}\n\n`
+                                + `� Ibimenyetso : ${d.symptomes_rn || d.symptomes || ''}\n\n`
+                                + `🛡️ Ukurinda : ${d.prevention_rn || d.prevention || ''}\n\n`
+                                + `💊 Umuti : ${d.traitement_rn || d.traitement || ''}\n\n`
+                                + `📚 Inkomoko : ${d.source || 'ISABU/OEB'}`;
+                        }
+                    }
+                    if (isFrench) {
+                        return '🦠 Je vois que vous avez un problème de maladie.\nAllez dans l\'onglet "Diagnostic Maladies" pour voir la liste complète avec les symptômes et les traitements.';
+                    }
+                    return 'Ndabona ufise ikibazo c indwara. Reba onglet "Maladies" kuri webusitiyi.';
+                }
+
+                // ── SAISON ───────────────────────────────────────────────────
+                const saisonKw = ['saison','igihe','quand semer','ubu','quelle période','calendrier','quand planter'];
+                if (saisonKw.some(w => q.includes(w))) {
+                    const s = SAISONS_BURUNDI[getCurrentSaison()];
+                    if (isFrench) {
+                        return `📅 Saison actuelle : ${s.nom} (${s.periode})\n`
+                            + `🌾 Cultures recommandées : ${(s.cultures_prioritaires||s.cultures||[]).join(', ')}\n`
+                            + `🌿 Conseil semis : ${s.conseil_semis || ''}\n\n`
+                            + s.alerte;
+                    }
+                    return `📅 Ubu tturi muri ${s.nom} (${s.periode}).\n`
+                        + `🌾 Ibihingwa : ${(s.cultures_prioritaires||s.cultures||[]).join(', ')}\n`
+                        + s.alerte;
+                }
+
+                // ── CRÉDIT / SCORE ───────────────────────────────────────────
+                const creditKw = ['credit','crédit','inguzanyo','score','amanota','pret','prêt','financement','banque','emprunt'];
+                if (creditKw.some(w => q.includes(w))) {
+                    if (isFrench) {
+                        return '💳 Pour obtenir un crédit engrais, utilisez l\'onglet "Agri-Scoring".\n\n'
+                            + 'Pour avoir un bon score, il vous faut :\n'
+                            + '• Superficie de 0.5 ha ou plus\n'
+                            + '• Sol de bonne qualité (limon-argileux = optimal)\n'
+                            + '• Culture à haute valeur (café, banane)\n\n'
+                            + 'Score maximum : 98/100\n'
+                            + 'Banques partenaires :\n'
+                            + '• BCAB — Crédit Twese Kw\'Itongo (taux 7%)\n'
+                            + '• FENACOBU / COOPEC (taux 15%)\n'
+                            + '• BNDE — Agro-industrie (taux 7%)';
+                    }
+                    return '💳 Kugira ubone amanota y inguzanyo, injira mu gice "Agri-Scoring".\n'
+                        + 'Banque: BCAB (taux 7%) cyangwa FENACOBU (taux 15%).';
+                }
+
+                // ── PRIX MARCHÉ ──────────────────────────────────────────────
+                const prixKw = ['prix','igiciro','angahe','marche','marché','coût','vendre','acheter','vente','achat'];
+                if (prixKw.some(w => q.includes(w))) {
+                    const haricot = getPrixMarche('Haricot');
+                    const mais    = getPrixMarche('Maïs');
+                    const manioc  = getPrixMarche('Manioc');
+                    if (isFrench) {
+                        return '💰 Prix actuels sur les marchés burundais (SIM/MINEAGRIE 2025-2026) :\n\n'
+                            + `• Haricot : ${haricot ? haricot.affichage : '1 500 BIF/kg'} — Marché Gitega\n`
+                            + `• Maïs : ${mais ? mais.affichage : '1 000 BIF/kg'} — Marché Ngozi\n`
+                            + `• Manioc : ${manioc ? manioc.affichage : '550 BIF/kg'} — Marché Gitega\n`
+                            + '• Vache Ankolé : 600 000 BIF/tête — DPAE Ngozi\n'
+                            + '• Chèvre locale : 85 000 BIF/tête — Kirundo\n'
+                            + '• Lait frais : 1 150 BIF/litre — Centre collecte Ngozi\n\n'
+                            + '📊 Voir tous les prix → onglet "Prix & Sources"';
+                    }
+                    return '💰 Prix ku masoko (SIM/MINEAGRIE 2025-2026) :\n'
+                        + `• Haricot: ${haricot ? haricot.affichage : '1 500 BIF/kg'}\n`
+                        + `• Mais: ${mais ? mais.affichage : '1 000 BIF/kg'}\n`
+                        + '📊 Reba onglet "Prix & Sources"';
+                }
+
+                // ── BONJOUR / SALUTATION ─────────────────────────────────────
+                const salutFR = ['bonjour','bonsoir','salut','hello','bonne journée','bonne soirée'];
+                const salutRN = ['muraho','mwiriwe','amakuru','bite'];
+                if (salutFR.some(w => q.includes(w))) {
+                    return 'Bonjour ! 👋 Je suis l\'assistant IA agricole de UBUMWE Agri.\n\n'
+                        + 'Je peux vous aider sur :\n'
+                        + '🌿 Les engrais FOMI et leur prix\n'
+                        + '🦠 Les maladies des plantes et animaux\n'
+                        + '📅 Le calendrier des saisons agricoles\n'
+                        + '💳 Le crédit engrais et le scoring\n'
+                        + '💰 Les prix des marchés burundais\n\n'
+                        + 'Posez votre question en français, je vous réponds !';
+                }
+                if (salutRN.some(w => q.includes(w))) {
+                    return 'Muraho ! 👋 Ndi umufasha w uburimyi wa UBUMWE Agri.\n\n'
+                        + 'Nshobora gufasha kuri:\n'
+                        + '🌿 Ifumbire FOMI n igiciro\n'
+                        + '🦠 Indwara z ibimera n ibitungwa\n'
+                        + '📅 Igihe co gutera (Saison A, B, C)\n'
+                        + '💳 Inguzanyo na score\n'
+                        + '💰 Igiciro ku masoko\n\n'
+                        + 'Baza ikibazo cawe!';
+                }
+
+                // ── MERCI ────────────────────────────────────────────────────
+                if (q.includes('merci') || q.includes('urakoze') || q.includes('thanks')) {
+                    return isFrench
+                        ? 'Avec plaisir ! 😊 N\'hésitez pas si vous avez d\'autres questions sur l\'agriculture ou l\'élevage au Burundi.'
+                        : 'Vyiza ! 😊 Baza ikibazo ikindi wanse.';
+                }
+
+                // ── AIDE GÉNÉRALE ─────────────────────────────────────────────
+                if (q.includes('aide') || q.includes('help') || q.includes('bafasha') || q.includes('que peux')) {
+                    return isFrench
+                        ? 'Je peux vous aider sur ces sujets :\n\n'
+                            + '🌿 Engrais FOMI → tapez "engrais maïs" ou "prix haricot"\n'
+                            + '🦠 Maladies → tapez "maladie vache" ou "mosaïque manioc"\n'
+                            + '📅 Saisons → tapez "quelle saison" ou "quand planter"\n'
+                            + '💳 Crédit → tapez "crédit engrais" ou "score FOMI"\n'
+                            + '💰 Prix → tapez "prix marché" ou "combien haricot"\n'
+                            + '🆘 Urgence → tapez "SOS vache malade"\n\n'
+                            + 'Posez votre question et je vous réponds !'
+                        : 'Nshobora gufasha kuri ivyo bintu:\n\n'
+                            + '🌿 Ifumbire → andika "ibigori ifumbire"\n'
+                            + '🦠 Indwara → andika "inka irwaye"\n'
+                            + '📅 Ibihe → andika "igihe co gutera"\n'
+                            + '💳 Inguzanyo → andika "score inguzanyo"\n'
+                            + '💰 Igiciro → andika "igiciro ibiharage"\n\n'
+                            + 'Baza ikibazo cawe!';
+                }
+
+                // ── ÉLEVAGE ──────────────────────────────────────────────────
+                const elevageKw = ['vache','inka','poule','inkoko','porc','ingurube','lapin','ikimanyi','chèvre','ihene','mouton','intama','elevage','ubworozi'];
+                if (elevageKw.some(w => q.includes(w))) {
+                    if (isFrench) {
+                        return '🐄 Pour l\'élevage, allez dans l\'onglet "Élevage & Bétail".\n\n'
+                            + 'Conseils importants :\n'
+                            + '• Stabulation permanente obligatoire (loi nationale)\n'
+                            + '• Vaccination Newcastle pour les poules (tous les 3 mois)\n'
+                            + '• Acaricide pour les vaches (toutes les 2 semaines)\n'
+                            + '• Aucun vaccin disponible pour la Peste Porcine Africaine\n\n'
+                            + 'En cas d\'urgence sanitaire, utilisez le module "SOS Kaza".';
+                    }
+                    return '🐄 Ku bibazo vy ubworozi, reba onglet "Élevage & Bétail".\n'
+                        + 'SOS: Koresha module "SOS Kaza" niba igitungwa carwaye bikabije.';
+                }
+
+                // ── RÉPONSE PAR DÉFAUT ───────────────────────────────────────
+                if (isFrench) {
+                    return 'Je n\'ai pas bien compris votre question. 🤔\n\n'
+                        + 'Essayez de me poser une question comme :\n'
+                        + '• "Quel engrais pour le maïs ?"\n'
+                        + '• "Prix du haricot à Gitega"\n'
+                        + '• "Ma vache a de la fièvre, que faire ?"\n'
+                        + '• "Quand planter le sorgho ?"\n'
+                        + '• "Je veux un crédit FOMI"\n\n'
+                        + 'Je vous réponds toujours en français simple !';
+                }
+                return 'Sinasobora gusobanukirwa. 🤔 Baza ikibazo nk\'iki:\n'
+                    + '• "Ibigori ifumbire iyihe?"\n'
+                    + '• "Igiciro ibiharage Gitega"\n'
+                    + '• "Inka yanje irwaye, nagira iki?"\n'
+                    + 'Nzobaza mu rurimi rwanyu!';
+            },
+
+            // Simuler un nouveau message après 5s
+            startDemoActivity() {
+                setTimeout(() => {
+                    if (!this.open) {
+                        this.unread++;
+                        const badge = document.getElementById('chat-unread');
+                        if (badge) { badge.textContent = this.unread; badge.style.display = 'flex'; }
+                        this.demoMessages.general.push({
+                            from: 'Bazubagira T.',
+                            text: 'Quelqu\'un vend des semences de haricot RWR 719 certifiées ?',
+                            time: new Date().getHours() + ':' + String(new Date().getMinutes()).padStart(2,'0'),
+                            received: true
+                        });
+                    }
+                }, 5000);
+            }
+        };
+
+        // ── USSD SOS KAZA SIMULATOR ──────────────────────────────
+        const ussdApp = {
+            state: 'start',
+            lang: 'fr',
+            data: {},
+
+            TREE: {
+                start: {
+                    fr: 'UBUMWE Agri — SOS Kaza\nHitamwo ururimi / Choisissez :\n1. Kirundi\n2. Français',
+                    rn: 'UBUMWE Agri — SOS Kaza\nHitamwo ururimi / Choisissez :\n1. Kirundi\n2. Français'
+                },
+                menu: {
+                    fr: 'Menu SOS Kaza\n1. SOS Élevage (Animaux)\n2. SOS Agriculture (Plantes)\n3. SOS Climat/Inondation\n4. Parler à un conseiller',
+                    rn: 'Menu SOS Kaza\n1. SOS Ubworozi (Ibitungwa)\n2. SOS Uburimyi (Ibirimbwa)\n3. SOS Ikirere/Umwuzure\n4. Hamagara umuhinga'
+                },
+                elevage: {
+                    fr: 'Quel animal ?\n1. Vache (Inka)\n2. Porc (Ingurube)\n3. Chèvre/Mouton\n4. Poule/Volaille\n5. Lapin\n6. Poisson',
+                    rn: 'Igitungwa kihe ?\n1. Inka\n2. Ingurube\n3. Ihene/Intama\n4. Inkoko/Inyoni\n5. Ikimanyi\n6. Ifi'
+                },
+                symptome: {
+                    fr: 'Symptôme ?\n1. Mort subite/Forte fièvre\n2. Boutons/Lésions cutanées\n3. Diarrhée sévère\n4. Perte d\'appétit\n5. Autre problème',
+                    rn: 'Ikibazo kihe ?\n1. Gupfa/Ubushuhe bwinshi\n2. Amabara/Amahinda\n3. Gusara bikabije\n4. Kureka kurya\n5. Ikindi kibazo'
+                },
+                agriculture: {
+                    fr: 'Quelle culture ?\n1. Manioc (CMD/BXW)\n2. Maïs (MLN)\n3. Banane (BXW)\n4. Pomme de terre\n5. Autre culture',
+                    rn: 'Igihingwa kihe ?\n1. Imyumbati\n2. Ibigori\n3. Ibitoke\n4. Ibirayi\n5. Ikindi gihingwa'
+                },
+                localisation: {
+                    fr: 'Entrez votre Province et Commune\n(ex: Bujumbura, Gitega, Ngozi...)\n\nEcrivez librement et confirmez OK',
+                    rn: 'Andika Intara yawe n\'Ikomine\n(akarorero: Bujumbura, Gitega, Ngozi...)\n\nAndika neza hanyuma ugande OK'
+                },
+                confirmation: {
+                    fr: '[SOS envoyé!]\nAgent DPAE averti.\nIsolez l\'animal malade.\nNe consommez pas sa viande.',
+                    rn: '[SOS yoherejwe!]\nUmuhinga wa DPAE yamenyeshejwe.\nItandukanye igitungwa kirwaye.\nNtirya inyama zacyo.'
+                }
+            },
+
+            init() {
+                this.state = 'start';
+                this.lang = 'fr';
+                this.data = {};
+                this.display(this.TREE.start.fr);
+                document.getElementById('ussd-input').focus();
+            },
+
+            display(text) {
+                const screen = document.getElementById('ussd-screen');
+                if (screen) screen.textContent = text;
+            },
+
+            respond() {
+                const input = document.getElementById('ussd-input');
+                const val = (input?.value || '').trim();
+                if (input) input.value = '';
+
+                const l = this.lang;
+                const T = this.TREE;
+
+                if (this.state === 'start') {
+                    if (val === '1') { this.lang = 'rn'; this.state = 'menu'; this.display(T.menu.rn); }
+                    else if (val === '2') { this.lang = 'fr'; this.state = 'menu'; this.display(T.menu.fr); }
+                    else this.display(T.start[l] + '\n\n⚠️ Choix invalide. Tapez 1 ou 2.');
+                }
+                else if (this.state === 'menu') {
+                    if (val === '1') { this.state = 'elevage'; this.display(T.elevage[l]); }
+                    else if (val === '2') { this.state = 'agriculture'; this.display(T.agriculture[l]); }
+                    else if (val === '3') { this.state = 'localisation'; this.data.type = 'Climat/Inondation'; this.display(T.localisation[l]); }
+                    else if (val === '4') {
+                        this.display(l === 'fr'
+                            ? 'Appel conseiller DPAE\n\nComposez le numéro de votre\nBPEAE provincial :\n• Gitega : BPEAE Gitega\n• Ngozi : BPEAE Butanyerera\n• Makamba : BPEAE Burunga\n• Cankuzo : BPEAE Buhumuza\n• Bujumbura : BPEAE Bujumbura\n\n[Fin — Code *710# pour recommencer]'
+                            : 'Guhamagara umuhinga wa DPAE\n\nHamagara BPEAE ya Intara yawe :\n• Gitega: BPEAE Gitega\n• Ngozi: BPEAE Butanyerera\n\n[Iherezo — *710# gutangira incuro nshasha]'
+                        );
+                    }
+                    else this.display(T.menu[l] + '\n\n⚠️ Tapez 1, 2, 3 ou 4.');
+                }
+                else if (this.state === 'elevage') {
+                    const animals = ['Vache/Inka','Porc/Ingurube','Chèvre-Mouton/Ihene-Intama','Poule/Inkoko','Lapin/Ikimanyi','Poisson/Ifi'];
+                    const idx = parseInt(val) - 1;
+                    if (idx >= 0 && idx < animals.length) {
+                        this.data.animal = animals[idx];
+                        this.data.type = 'Élevage/Ubworozi';
+                        this.state = 'symptome';
+                        this.display(T.symptome[l]);
+                    } else this.display(T.elevage[l] + '\n\n⚠️ Tapez 1 à 6.');
+                }
+                else if (this.state === 'agriculture') {
+                    const cultures = ['Manioc/Imyumbati','Maïs/Ibigori','Banane/Ibitoke','Pomme de terre/Ibirayi','Autre/Ikindi'];
+                    const idx = parseInt(val) - 1;
+                    if (idx >= 0 && idx < cultures.length) {
+                        this.data.culture = cultures[idx];
+                        this.data.type = 'Agriculture/Uburimyi';
+                        this.state = 'symptome';
+                        this.display(T.symptome[l]);
+                    } else this.display(T.agriculture[l] + '\n\n⚠️ Tapez 1 à 5.');
+                }
+                else if (this.state === 'symptome') {
+                    const symptoms = ['Mort subite/Forte fièvre','Boutons/Lésions','Diarrhée sévère','Perte appétit','Autre'];
+                    const idx = parseInt(val) - 1;
+                    if (idx >= 0 && idx < symptoms.length) {
+                        this.data.symptome = symptoms[idx];
+                        this.state = 'localisation';
+                        this.display(T.localisation[l]);
+                    } else this.display(T.symptome[l] + '\n\n⚠️ Tapez 1 à 5.');
+                }
+                else if (this.state === 'localisation') {
+                    // Accepter tout texte — pas de restriction de longueur
+                    if (val.length >= 1) {
+                        this.data.localisation = val;
+                        this.state = 'confirmation';
+                        this.display(T.confirmation[l]);
+                        this.saveAlertOffline();
+                    } else {
+                        const errMsg = l === 'rn'
+                            ? '\n\n⚠️ Andika aho uherereye.'
+                            : '\n\n⚠️ Entrez votre localisation.';
+                        this.display(T.localisation[l] + errMsg);
+                    }
+                }
+                else {
+                    this.init();
+                }
+            },
+
+            saveAlertOffline() {
+                const alerts = JSON.parse(localStorage.getItem('UBUMWE_SOS_ALERTS') || '[]');
+                alerts.unshift({
+                    id: 'sos-' + Date.now(),
+                    ...this.data,
+                    timestamp: new Date().toISOString(),
+                    synced: false
+                });
+                localStorage.setItem('UBUMWE_SOS_ALERTS', JSON.stringify(alerts));
+            },
+
+            buildMessage() {
+                const p = document.getElementById('sos-province')?.value || '';
+                const c = document.getElementById('sos-commune')?.value || '';
+                const animal = document.getElementById('sos-animal')?.value || '';
+                const symptom = document.getElementById('sos-symptom')?.value || '';
+                const phone = '+257' + (document.getElementById('sos-phone')?.value || '');
+                const lang = document.getElementById('sos-lang')?.value || 'fr';
+
+                if (lang === 'rn') {
+                    return `[SOS Kaza] Umuvuzi, umworozi/umurimyi wo muri [${p}, ${c}] aratabaza. Ikibazo: ${animal} - ${symptom}. Nomero: ${phone}. Genda ubatabare vuba!`;
+                }
+                return `[SOS Kaza UBUMWE Agri] Alerte urgente de [${p}, ${c}]. Problème : ${animal} — ${symptom}. Numéro : ${phone}. Intervention urgente requise!`;
+            },
+
+            sendWhatsApp() {
+                const msg = encodeURIComponent(this.buildMessage());
+                // Numéro d'urgence DPAE (à remplacer par le vrai numéro DPAE)
+                window.open(`https://wa.me/25779000000?text=${msg}`, '_blank');
+                showToast('Message SOS envoyé via WhatsApp !', 'success');
+            },
+
+            sendSMS() {
+                const msg = encodeURIComponent(this.buildMessage());
+                window.open(`sms:+25779000000?body=${msg}`, '_blank');
+                showToast('SMS SOS ouvert — confirmez l\'envoi !', 'info');
+            },
+
+            reset() { this.init(); }
+        };
+
+        // ── GESTION ÉCRAN DE BIENVENUE & ACCÈS ──────────────────
+        function showWelcomeAuth(mode) {
+            app.openAuthModal(mode);
+        }
+
+        function enterAsGuest() {
+            // Accès limité sans compte — juste voir l'accueil et les prix
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('flex', 'flex-col');
+            app.showScreen('home');
+            showToast('Accès visiteur — Créez un compte pour toutes les fonctions.', 'info');
+        }
+
+        function unlockApp() {
+            const ws = document.getElementById('welcome-screen');
+            const ma = document.getElementById('main-app');
+            if (ws) ws.style.display = 'none';
+            if (ma) {
+                ma.classList.remove('hidden');
+                ma.classList.add('flex', 'flex-col');
+            }
+            // Mettre à jour le menu hamburger
+            const authBtns = document.getElementById('menu-auth-btns');
+            const logoutBtn = document.getElementById('menu-logout-btn');
+            const adminBtn = document.getElementById('menu-admin-btn');
+            const userProf = document.getElementById('user-profile-container');
+            const user = state?.currentUser;
+            if (user) {
+                if (authBtns) authBtns.style.display = 'none';
+                if (logoutBtn) { logoutBtn.style.display = ''; logoutBtn.classList.remove('hidden'); }
+                if (userProf) userProf.classList.remove('hidden');
+                // Bouton avatar avec initiale
+                const avatarBtn = document.getElementById('user-avatar-btn');
+                if (avatarBtn) avatarBtn.textContent = (user.fullName || user.email || 'U').charAt(0).toUpperCase();
+                if (adminBtn && (user.role === 'admin' || user.role === 'super_admin')) {
+                    adminBtn.style.display = '';
+                    adminBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        // ── HAMBURGER MENU ───────────────────────────────────────
+        let hamburgerOpen = false;
+        function toggleHamburger() {
+            hamburgerOpen = !hamburgerOpen;
+            const menu = document.getElementById('hamburger-menu');
+            const hb1  = document.getElementById('hb1');
+            const hb2  = document.getElementById('hb2');
+            const hb3  = document.getElementById('hb3');
+            if (menu) menu.classList.toggle('hidden', !hamburgerOpen);
+            // Animation barres
+            if (hb1) hb1.style.transform = hamburgerOpen ? 'rotate(45deg) translate(3px, 3px)' : '';
+            if (hb2) hb2.style.opacity   = hamburgerOpen ? '0' : '1';
+            if (hb3) hb3.style.transform = hamburgerOpen ? 'rotate(-45deg) translate(3px, -3px)' : '';
+        }
+        // Fermer menu si click en dehors
+        document.addEventListener('click', e => {
+            if (hamburgerOpen &&
+                !e.target.closest('#hamburger-menu') &&
+                !e.target.closest('#hamburger-btn')) {
+                toggleHamburger();
+            }
+        });
+
+        // ── LIEN ADMIN SECRET ─────────────────────────────────────
+        // URL secrète : votre-site.netlify.app/#admin-joel-carmen-2026
+        if (window.location.hash === '#admin-joel-carmen-2026') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    // Connexion automatique démo admin
+                    app.toggleDemoAdminRole();
+                    unlockApp();
+                    app.showScreen('admin');
+                    showToast('🔐 Accès Administrateur activé', 'success');
+                }, 500);
+            });
+        }
+
+        // Lancer activité démo
+        chatApp.startDemoActivity();
+
+        // Communes par province (42 communes officielles - Loi 1/05 du 16 mars 2023)
+        const COMMUNES_PAR_PROVINCE = {
+            'BUJUMBURA': ['Bubanza','Bukinanyana','Cibitoke','Isare','Mpanda','Mugere','Mugina','Muhuta','Mukaza','Ntahangwa','Rwibaga'],
+            'GITEGA': ['Bugendana','Gishubi','Gitega','Karusi','Kiganda','Muramvya','Mwaro','Nyabihanga','Shombo'],
+            'BUTANYERERA': ['Busoni','Kayanza','Kiremba','Kirundo','Matongo','Muhanga','Ngozi','Tangara'],
+            'BURUNGA': ['Bururi','Makamba','Matana','Musongati','Nyanza-Lac','Rumonge','Rutana'],
+            'BUHUMUZA': ['Butaganzwa','Butihinda','Cankuzo','Gisagara','Gisuru','Muyinga','Ruyigi']
+        };
+
+        function updateCommunes(province) {
+            const sel = document.getElementById('score-commune');
+            const marketSel = document.getElementById('deposit-commune');
+            const communes = COMMUNES_PAR_PROVINCE[province] || [];
+
+            const opts = '<option value="">-- Choisir commune --</option>' +
+                communes.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            if (sel) sel.innerHTML = opts;
+            if (marketSel) marketSel.innerHTML = opts;
+        }
+
+        // Afficher alerte saison au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            // Appliquer la langue sauvegardée
+            if (typeof translatePage === 'function') translatePage();
+            // Nettoyer tout blocage résiduel et initialiser la sécurité
+            localStorage.removeItem('UBUMWE_SEC_BLOCKED'); localStorage.removeItem('UBUMWE_SEC_LOG'); localStorage.removeItem('UBUMWE_SEC_LOG'); localStorage.removeItem('UBUMWE_SEC_LOG');
+            if (typeof UbumweSecurity !== 'undefined') {
+                UbumweSecurity.init();
+            }
+            const s = SAISONS_BURUNDI[getCurrentSaison()];
+            if (s) console.log('Saison actuelle:', s.nom, '-', s.alerte);
+            ussdApp.init();
+        });
+    </script>
+</body>
+</html>

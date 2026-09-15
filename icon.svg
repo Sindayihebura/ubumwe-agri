@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b4332"/>
+      <stop offset="100%" stop-color="#2d6a4f"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b7410e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
+  <!-- Leaf and Sprout Symbol -->
+  <path d="M256 90 C 330 90, 390 150, 390 230 C 390 310, 300 370, 256 420 C 212 370, 122 310, 122 230 C 122 150, 182 90, 256 90 Z" fill="url(#accentGrad)" opacity="0.9"/>
+  <path d="M256 130 C 210 180, 210 250, 256 310 C 302 250, 302 180, 256 130 Z" fill="#ffffff"/>
+  <path d="M256 140 L 256 380" stroke="#1b4332" stroke-width="12" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,37 @@
+{
+  "name": "UBUMWE Agri",
+  "short_name": "UBUMWE",
+  "description": "Agriculture de précision au Burundi — Crédit FOMI, Marketplace, Diagnostic maladies",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1b4332",
+  "theme_color": "#1b4332",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "lang": "fr",
+  "categories": [
+    "productivity",
+    "utilities",
+    "agriculture"
+  ]
+}
