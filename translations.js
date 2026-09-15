@@ -1,19 +1,28 @@
 /**
- * UBUMWE AGRI - Système de Traductions Multilingues
- * Langues supportées : Français, Kirundi, English
+ * UBUMWE AGRI — Système de Traductions Multilingues COMPLET
+ * Langues : Français (fr) | Kirundi (rn) | Kinyarwanda (rw) | English (en)
+ * Tous les textes du site sont traduits — boutons, labels, icônes, tableaux
  */
 
 const translations = {
+
+    /* ═══════════════════════════════════════════════════════════
+       FRANÇAIS
+    ═══════════════════════════════════════════════════════════ */
     fr: {
         // Navigation
         nav_home: "Accueil",
         nav_scoring: "Agri-Scoring & Crédit FOMI",
         nav_market: "Marketplace Agricole",
         nav_livestock: "Élevage & Bétail",
+        nav_diseases: "Diagnostic Maladies",
+        nav_prices: "Prix des Marchés",
+        nav_sos: "SOS Agriculteur",
         nav_guide: "Guide FOMI",
         nav_admin: "Dashboard Admin",
-        
-        // Authentification
+        nav_superadmin: "⭐ Super Admin",
+
+        // Auth
         auth_login: "Connexion",
         auth_register: "S'inscrire",
         auth_logout: "Déconnexion",
@@ -24,19 +33,29 @@ const translations = {
         auth_role: "Rôle",
         auth_role_farmer: "Agriculteur",
         auth_role_herder: "Éleveur",
-        auth_role_client: "Client/Acheteur",
+        auth_role_client: "Client / Acheteur",
         auth_create_account: "Créer mon Compte",
         auth_signin: "Se Connecter",
         auth_already_account: "Déjà un compte ? Se connecter",
         auth_no_account: "Pas encore de compte ? S'inscrire ici",
-        
+        auth_connecting: "Connexion en cours…",
+        auth_disconnecting: "Déconnexion…",
+        auth_password_min: "Le mot de passe doit contenir au moins 8 caractères.",
+
+        // Écran de bienvenue
+        welcome_title: "Bienvenue sur UBUMWE Agri",
+        welcome_subtitle: "La plateforme d'agriculture de précision du Burundi",
+        welcome_login_btn: "Se Connecter",
+        welcome_register_btn: "Créer un Compte",
+        welcome_visit_btn: "Visiter sans compte",
+
         // Hero
         hero_title: "UBUMWE Agri : Crédit Agricole, Fertilisants FOMI & Marketplace Burundi",
-        hero_subtitle: "Solution complète d'agriculture de précision : Évaluez votre score de crédit engrais, vendez et achetez des récoltes et du bétail sans intermédiaire.",
+        hero_subtitle: "Solution complète d'agriculture de précision : Évaluez votre score de crédit engrais, vendez et achetez vos récoltes et bétail sans intermédiaire.",
         hero_btn_score: "Calculer mon Score Crédit",
         hero_btn_market: "Accéder à la Marketplace",
         hero_btn_deposit: "Déposer un Produit",
-        
+
         // Scoring
         scoring_title: "Formulaire d'Évaluation de Crédit Engrais",
         scoring_subtitle: "Saisissez les détails de la parcelle pour obtenir un score de confiance et faire une demande de crédit d'intrants.",
@@ -48,6 +67,7 @@ const translations = {
         scoring_soil: "Texture du Sol",
         scoring_surface: "Superficie (en Hectares)",
         scoring_phone: "Téléphone de Contact Burundi",
+        scoring_institution: "Institution Bancaire",
         scoring_calculate: "ÉVALUER LE SCORE ET RECOMMANDER L'ENGRAIS",
         scoring_result_title: "Score de Crédit Agronomique",
         scoring_eligible: "Éligible au Crédit",
@@ -57,7 +77,26 @@ const translations = {
         scoring_companion: "Plantes Associées :",
         scoring_topo_advice: "Conseil Topographie :",
         scoring_send_request: "Envoyer la Demande Officielle de Crédit",
-        
+        scoring_weather_bonus: "Bonus météo appliqué :",
+        scoring_weather_malus: "Malus météo appliqué :",
+        scoring_weather_loading: "Chargement météo…",
+        scoring_weather_offline: "Météo indisponible (hors ligne)",
+        scoring_bags: "sacs de 25 kg",
+        scoring_repay: "Remboursement estimé",
+
+        // Météo widget
+        weather_title: "Météo Actuelle",
+        weather_province: "Province :",
+        weather_temp: "Température",
+        weather_rain: "Précipitations",
+        weather_humidity: "Humidité",
+        weather_wind: "Vent",
+        weather_impact: "Impact sur le score :",
+        weather_good: "Conditions favorables",
+        weather_drought: "Risque de sécheresse",
+        weather_flood: "Risque d'inondation",
+        weather_optimal: "Conditions optimales",
+
         // Marketplace
         market_title: "Marketplace Agricole & Élevage Burundi",
         market_subtitle: "Achetez et vendez directement vos récoltes et bétail sans intermédiaire.",
@@ -71,8 +110,11 @@ const translations = {
         market_price_unit: "Prix unitaire",
         market_quantity: "Qté",
         market_total: "Total",
-        
-        // Deposit modal
+        market_province: "Province",
+        market_available: "En vente",
+        market_sold: "Vendu",
+
+        // Dépôt produit
         deposit_title: "Déposer un Produit sur la Marketplace",
         deposit_type: "Type de Produit",
         deposit_type_vegetal: "Produit Végétal (Récolte)",
@@ -89,12 +131,57 @@ const translations = {
         deposit_description: "Description",
         deposit_submit: "Soumettre le Produit",
         deposit_cancel: "Annuler",
-        
+
+        // Maladies
+        diseases_title: "Diagnostic des Maladies",
+        diseases_subtitle: "Identifiez les maladies de vos cultures et animaux, obtenez les remèdes.",
+        diseases_search: "Chercher une maladie…",
+        diseases_all: "Toutes",
+        diseases_plants: "Plantes",
+        diseases_animals: "Animaux",
+        diseases_severity: "Gravité",
+        diseases_see_remedy: "Voir remèdes →",
+        diseases_symptoms: "Symptômes",
+        diseases_treatment: "Traitement / Remèdes",
+        diseases_prevention: "Prévention",
+        diseases_cause: "Cause & Diagnostic",
+        diseases_vaccine: "Vaccin",
+        diseases_zoonotic: "⚠️ ZOONOSE - Danger humain",
+        diseases_not_found: "Aucune maladie trouvée pour cette recherche.",
+        diseases_source: "Source",
+
+        // Prix marchés
+        prices_title: "Prix des Marchés Officiels",
+        prices_subtitle: "Données SIM/MINEAGRIE, INSBU, PAM-VAM — Mise à jour hebdomadaire",
+        prices_product: "Produit",
+        prices_min: "Prix Min",
+        prices_max: "Prix Max",
+        prices_avg: "Prix Moyen",
+        prices_market: "Marché Réf.",
+        prices_source: "Source",
+        prices_official_sources: "Sources Officielles",
+        prices_markets_by_province: "Marchés par Province",
+
+        // SOS
+        sos_title: "SOS Agriculteur — Aide d'Urgence",
+        sos_subtitle: "Simulateur USSD pour zones sans internet",
+        sos_enter_number: "Entrez un numéro USSD",
+        sos_call: "Appeler",
+
+        // Guide FOMI
+        guide_title: "Guide Officiel des Engrais FOMI",
+        guide_subtitle: "Tous les produits FOMI avec dosages et cultures recommandées.",
+
+        // Élevage
+        livestock_title: "Élevage & Bétail",
+        livestock_subtitle: "Achetez et vendez directement vos animaux.",
+        livestock_no_animals: "Aucun animal à la vente pour l'instant.",
+
         // Toasts
         toast_welcome: "Bienvenue",
         toast_login_success: "Connexion réussie !",
         toast_logout: "Vous avez été déconnecté.",
-        toast_signup_success: "Inscription réussie ! Connectez-vous.",
+        toast_signup_success: "Inscription réussie ! Vérifiez votre e-mail puis connectez-vous.",
         toast_phone_invalid: "Format de téléphone invalide (ex: +257 79 123 456).",
         toast_fill_fields: "Veuillez remplir tous les champs.",
         toast_product_submitted: "Produit soumis ! En attente de validation Admin.",
@@ -102,8 +189,13 @@ const translations = {
         toast_score_calculated: "Score calculé avec succès",
         toast_credit_sent: "Demande de crédit enregistrée avec succès !",
         toast_must_login: "Veuillez vous connecter pour déposer un produit.",
-        
-        // Admin
+        toast_weather_ok: "Météo chargée avec succès.",
+        toast_weather_fail: "Impossible de charger la météo.",
+        toast_rating_saved: "Merci pour votre note !",
+        toast_offline: "Mode hors-ligne activé.",
+        toast_online: "Connexion internet rétablie.",
+
+        // Admin standard
         admin_title: "Tableau de Bord Administrateur",
         admin_subtitle: "Validation des annonces du marché, gestion des rôles et contrôle du système.",
         admin_pending: "Produits en Attente",
@@ -115,40 +207,84 @@ const translations = {
         admin_no_pending: "Aucun produit en attente. Tout est validé !",
         admin_reset_demo: "Réinitialiser démo",
         admin_demo_mode: "Mode Test Admin",
-        
+        admin_security: "Rapport Sécurité",
+        admin_layer1: "Couche 1 — Détecteur",
+        admin_layer2: "Couche 2 — Analyste",
+        admin_layer3: "Couche 3 — Défenseur",
+
+        // Super Admin
+        superadmin_title: "⭐ Super Admin — Tableau de Bord Privé",
+        superadmin_subtitle: "Accès réservé aux administrateurs principaux uniquement.",
+        superadmin_users_total: "Utilisateurs Total",
+        superadmin_visits_today: "Visites Aujourd'hui",
+        superadmin_revenue: "Revenus (BIF)",
+        superadmin_rating: "Note Moyenne",
+        superadmin_chart_users: "Évolution des Utilisateurs",
+        superadmin_chart_revenue: "Évolution des Revenus",
+        superadmin_chart_visits: "Visites par Jour",
+        superadmin_chart_rating: "Satisfaction Utilisateurs",
+        superadmin_ratings_list: "Dernières Évaluations",
+        superadmin_no_ratings: "Aucune évaluation encore.",
+        superadmin_export: "Exporter CSV",
+        superadmin_reset: "Réinitialiser les Stats",
+
+        // Notation 5 étoiles
+        rating_title: "Votre avis sur UBUMWE Agri",
+        rating_subtitle: "Aidez-nous à améliorer le service",
+        rating_placeholder: "Laissez un commentaire (optionnel)…",
+        rating_submit: "Envoyer mon avis",
+        rating_thanks: "Merci pour votre évaluation !",
+        rating_total: "avis",
+        rating_label_1: "Très mauvais",
+        rating_label_2: "Mauvais",
+        rating_label_3: "Correct",
+        rating_label_4: "Bien",
+        rating_label_5: "Excellent",
+
+        // Indicateur connexion
+        status_online: "En ligne",
+        status_offline: "Hors ligne",
+        status_syncing: "Synchronisation…",
+
         // Footer
         footer_partners: "Partenaire Engrais",
         footer_db: "Base de Données",
         footer_livestock: "Élevage & Bétail",
         footer_direct_sale: "Vente Directe",
-        
+        footer_rights: "Tous droits réservés",
+
         // Cultures
-        crop_corn: "Maïs",
-        crop_banana: "Banane",
-        crop_bean: "Haricot",
-        crop_cassava: "Manioc",
-        crop_rice: "Riz (Bas-fonds)",
-        crop_coffee: "Caféier",
-        crop_potato: "Pomme de terre",
-        
+        crop_corn: "Maïs", crop_banana: "Banane", crop_bean: "Haricot",
+        crop_cassava: "Manioc", crop_rice: "Riz (Bas-fonds)", crop_coffee: "Caféier",
+        crop_potato: "Pomme de terre", crop_sorgho: "Sorgho",
+        crop_peas: "Petits pois", crop_tomato: "Tomate", crop_cabbage: "Chou",
+
         // Provinces
-        province_gitega: "Gitega",
-        province_buhumuza: "Buhumuza",
-        province_bujumbura: "Bujumbura",
-        province_burunga: "Burunga",
+        province_gitega: "Gitega", province_buhumuza: "Buhumuza",
+        province_bujumbura: "Bujumbura", province_burunga: "Burunga",
         province_butanyerera: "Butanyerera",
+
+        // Communes — choisir
+        choose_province: "-- Choisir une province --",
+        choose_commune: "-- Choisir une commune --",
+        choose_institution: "-- Choisir institution --",
     },
-    
-    rn: { // Kirundi
-        // Navigation
+
+    /* ═══════════════════════════════════════════════════════════
+       KIRUNDI
+    ═══════════════════════════════════════════════════════════ */
+    rn: {
         nav_home: "Ahabanza",
         nav_scoring: "Agri-Scoring & Inguzanyo FOMI",
         nav_market: "Isoko ry'Ubuhinzi",
         nav_livestock: "Ubworozi",
+        nav_diseases: "Indwara z'Ibimera & Amatungo",
+        nav_prices: "Ibiciro vya Masoko",
+        nav_sos: "SOS Umuhinzi",
         nav_guide: "Ubuyobozi bwa FOMI",
         nav_admin: "Ikibanza c'Umuyobozi",
-        
-        // Authentification
+        nav_superadmin: "⭐ Super Admin",
+
         auth_login: "Kwinjira",
         auth_register: "Kwiyandikisha",
         auth_logout: "Gusohoka",
@@ -164,15 +300,22 @@ const translations = {
         auth_signin: "Kwinjira",
         auth_already_account: "Ufise konti? Injira",
         auth_no_account: "Ntufise konti? Iyandikishe hano",
-        
-        // Hero
+        auth_connecting: "Kwinjira biriko biragenda…",
+        auth_disconnecting: "Gusohoka…",
+        auth_password_min: "Ijambobanga rigomba kuba rifite nibura inyuguti.",
+
+        welcome_title: "Murakaza neza kuri UBUMWE Agri",
+        welcome_subtitle: "Urubuga rw'ubuhinzi bwiza mu Burundi",
+        welcome_login_btn: "Kwinjira",
+        welcome_register_btn: "Kora Konti",
+        welcome_visit_btn: "Kureba nta konti",
+
         hero_title: "UBUMWE Agri : Inguzanyo z'Ubuhinzi, Ifumbire za FOMI & Isoko rya Burundi",
         hero_subtitle: "Igisubizo c'ubuhinzi bwiza : Suzuma amanota y'inguzanyo, ugurisha kandi ugure ibihingwa n'amatungo bitarenze ku bandi.",
         hero_btn_score: "Kubara Amanota Yanje",
         hero_btn_market: "Injira ku Isoko",
         hero_btn_deposit: "Shira Igicuruzwa",
-        
-        // Scoring
+
         scoring_title: "Ifishi yo Gusuzuma Inguzanyo z'Ifumbire",
         scoring_subtitle: "Andika ibisobanuro vy'umurima kugira ngo ubone amanota kandi usabe inguzanyo z'ifumbire.",
         scoring_farmer_name: "Amazina Yose y'Umuhinzi",
@@ -183,6 +326,7 @@ const translations = {
         scoring_soil: "Ubwoko bw'Ubutaka",
         scoring_surface: "Ubunini (mw'Mahectare)",
         scoring_phone: "Telefoni yo Kuvugana",
+        scoring_institution: "Banki canke COOPEC",
         scoring_calculate: "SUZUMA AMANOTA KANDI USABE IFUMBIRE",
         scoring_result_title: "Amanota y'Inguzanyo z'Ubuhinzi",
         scoring_eligible: "Wemerewe Inguzanyo",
@@ -192,8 +336,25 @@ const translations = {
         scoring_companion: "Ibimera Bifashanya :",
         scoring_topo_advice: "Inama ku Miterere :",
         scoring_send_request: "Ohereza Icyifuzo c'Inguzanyo",
-        
-        // Marketplace
+        scoring_weather_bonus: "Inyongera ya Ibihe :",
+        scoring_weather_malus: "Igabanyizo ca Ibihe :",
+        scoring_weather_loading: "Ibihe biriko birasangwa…",
+        scoring_weather_offline: "Ibihe ntibiboneka (nta internet)",
+        scoring_bags: "imifuko ya 25 kg",
+        scoring_repay: "Kwishura bisimbwa",
+
+        weather_title: "Ibihe Vya Ubu",
+        weather_province: "Intara :",
+        weather_temp: "Ubushushe",
+        weather_rain: "Imvura",
+        weather_humidity: "Ubuhehere",
+        weather_wind: "Umuyaga",
+        weather_impact: "Ingaruka ku manota :",
+        weather_good: "Ibihe vyiza",
+        weather_drought: "Akaga k'Amapfunyika",
+        weather_flood: "Akaga k'Imvura nyinshi",
+        weather_optimal: "Ibihe bihagije",
+
         market_title: "Isoko ry'Ubuhinzi & Ubworozi mu Burundi",
         market_subtitle: "Gura kandi ugurisha ibihingwa n'amatungo bitarenze ku bandi.",
         market_deposit: "Shira Igicuruzwa / Igitungo",
@@ -206,8 +367,10 @@ const translations = {
         market_price_unit: "Igiciro ku kimwe",
         market_quantity: "Ingano",
         market_total: "Igiteranyo",
-        
-        // Deposit modal
+        market_province: "Intara",
+        market_available: "Kugurwa",
+        market_sold: "Cagurijwe",
+
         deposit_title: "Shira Igicuruzwa ku Isoko",
         deposit_type: "Ubwoko bw'Igicuruzwa",
         deposit_type_vegetal: "Igihingwa",
@@ -224,21 +387,64 @@ const translations = {
         deposit_description: "Ibisobanuro",
         deposit_submit: "Ohereza Igicuruzwa",
         deposit_cancel: "Hagarika",
-        
-        // Toasts
+
+        diseases_title: "Gusuzuma Indwara",
+        diseases_subtitle: "Menya indwara z'ibimera n'amatungo, ubone imiti.",
+        diseases_search: "Shakisha indwara…",
+        diseases_all: "Vyose",
+        diseases_plants: "Ibimera",
+        diseases_animals: "Amatungo",
+        diseases_severity: "Ubukana",
+        diseases_see_remedy: "Reba imiti →",
+        diseases_symptoms: "Ibimenyetso",
+        diseases_treatment: "Imiti / Gukira",
+        diseases_prevention: "Kwirinda",
+        diseases_cause: "Impamvu & Kugaragaza",
+        diseases_vaccine: "Inkingo",
+        diseases_zoonotic: "⚠️ ZOONOSE - Ingaruka ku muntu",
+        diseases_not_found: "Nta ndwara yaboneka muri iyi gushakisha.",
+        diseases_source: "Inkomoko",
+
+        prices_title: "Ibiciro vya Masoko Ahamye",
+        prices_subtitle: "Amakuru SIM/MINEAGRIE, INSBU, PAM-VAM — Ivugurura buri ndwi",
+        prices_product: "Igicuruzwa",
+        prices_min: "Agaciro Ke",
+        prices_max: "Agaciro Kenshi",
+        prices_avg: "Agaciro Hagati",
+        prices_market: "Isoko Rigenga",
+        prices_source: "Inkomoko",
+        prices_official_sources: "Inkomoko Zamwe",
+        prices_markets_by_province: "Amasoko ku Ntara",
+
+        sos_title: "SOS Umuhinzi — Ubufasha bw'Ihutirwa",
+        sos_subtitle: "Igikoresho ca USSD ku ntara zidafite internet",
+        sos_enter_number: "Injiza nimero ya USSD",
+        sos_call: "Hamagara",
+
+        guide_title: "Urutonde rw'Ifumbire za FOMI",
+        guide_subtitle: "Ibicuruzwa vyose vya FOMI hamwe n'ingero z'imirima.",
+
+        livestock_title: "Ubworozi & Amatungo",
+        livestock_subtitle: "Gura kandi ugurisha amatungo yawe atarenze ku bandi.",
+        livestock_no_animals: "Nta gitungo kigurwa ubu.",
+
         toast_welcome: "Murakaza neza",
         toast_login_success: "Winjiye neza !",
         toast_logout: "Wasohokeje.",
-        toast_signup_success: "Wiyandikishije neza ! Injira.",
+        toast_signup_success: "Wiyandikishije neza ! Reba imeyili yawe hanyuma winjire.",
         toast_phone_invalid: "Telefoni ntiyuzuye (urugero: +257 79 123 456).",
-        toast_fill_fields: "Uzuza amasomo yose.",
+        toast_fill_fields: "Uzuza imyanya yose.",
         toast_product_submitted: "Igicuruzwa cyoherejwe ! Gitegereza kwemezwa.",
         toast_product_published: "Igicuruzwa cyaratangajwe !",
         toast_score_calculated: "Amanota yarabawe neza",
         toast_credit_sent: "Icyifuzo c'inguzanyo cyanditswe neza !",
         toast_must_login: "Ugomba kwinjira kugira ngo ushireho igicuruzwa.",
-        
-        // Admin
+        toast_weather_ok: "Ibihe vyasanzwe neza.",
+        toast_weather_fail: "Ibihe ntibishobora gusangwa.",
+        toast_rating_saved: "Urakoze ku gusuzuma !",
+        toast_offline: "Ukora nta internet.",
+        toast_online: "Internet yasubiye.",
+
         admin_title: "Ikibanza c'Umuyobozi",
         admin_subtitle: "Kwemeza ibicuruzwa, kuyobora abantu no kugenzura sisitemu.",
         admin_pending: "Ibicuruzwa Bitegereje",
@@ -250,34 +456,319 @@ const translations = {
         admin_no_pending: "Nta gicuruzwa gitegereje. Vyose byemejwe !",
         admin_reset_demo: "Ongera utangire demo",
         admin_demo_mode: "Uburyo bwo Kugerageza",
-        
-        // Cultures
-        crop_corn: "Ibigori",
-        crop_banana: "Ibitoke",
-        crop_bean: "Ibiharage",
-        crop_cassava: "Imyumbati",
-        crop_rice: "Umuceri",
-        crop_coffee: "Ikawa",
-        crop_potato: "Ibirayi",
-        
-        // Provinces
-        province_gitega: "Gitega",
-        province_buhumuza: "Buhumuza",
-        province_bujumbura: "Bujumbura",
-        province_burunga: "Burunga",
+        admin_security: "Raporo ya Umutekano",
+        admin_layer1: "Inzira 1 — Gusuzuma",
+        admin_layer2: "Inzira 2 — Gusesengura",
+        admin_layer3: "Inzira 3 — Kurinda",
+
+        superadmin_title: "⭐ Super Admin — Ikibanza Gihishwe",
+        superadmin_subtitle: "Yinjirwa na abayobozi bakuru gusa.",
+        superadmin_users_total: "Abakoresha Bose",
+        superadmin_visits_today: "Inzira z'Uyu Musi",
+        superadmin_revenue: "Inyungu (BIF)",
+        superadmin_rating: "Amanota Hagati",
+        superadmin_chart_users: "Iterambere ry'Abakoresha",
+        superadmin_chart_revenue: "Iterambere ry'Inyungu",
+        superadmin_chart_visits: "Inzira ku Musi",
+        superadmin_chart_rating: "Ubushimye bw'Abakoresha",
+        superadmin_ratings_list: "Amasuzuma ya Banshira",
+        superadmin_no_ratings: "Nta masuzuma arahari.",
+        superadmin_export: "Koporora CSV",
+        superadmin_reset: "Subiza Imibare",
+
+        rating_title: "Ibitekerezo vyawe kuri UBUMWE Agri",
+        rating_subtitle: "Dufashe gutunganya serivisi yacu",
+        rating_placeholder: "Siga ivyiyumviro (si ngombwa)…",
+        rating_submit: "Ohereza ibitekerezo",
+        rating_thanks: "Urakoze ku gusuzuma !",
+        rating_total: "amasuzuma",
+        rating_label_1: "Bibi cane",
+        rating_label_2: "Bibi",
+        rating_label_3: "Bihagije",
+        rating_label_4: "Vyiza",
+        rating_label_5: "Vyiza cane",
+
+        status_online: "Kuri internet",
+        status_offline: "Nta internet",
+        status_syncing: "Gusynchroniser…",
+
+        footer_partners: "Ikigo c'Ifumbire",
+        footer_db: "Ububiko bw'Amakuru",
+        footer_livestock: "Ubworozi & Amatungo",
+        footer_direct_sale: "Kugurisha Butarenze",
+        footer_rights: "Uburenganzira bwose burindwa",
+
+        crop_corn: "Ibigori", crop_banana: "Ibitoke", crop_bean: "Ibiharage",
+        crop_cassava: "Imyumbati", crop_rice: "Umuceri", crop_coffee: "Ikawa",
+        crop_potato: "Ibirayi", crop_sorgho: "Amasaka",
+        crop_peas: "Ibiharage bito", crop_tomato: "Inyanya", crop_cabbage: "Ishu",
+
+        province_gitega: "Gitega", province_buhumuza: "Buhumuza",
+        province_bujumbura: "Bujumbura", province_burunga: "Burunga",
         province_butanyerera: "Butanyerera",
+
+        choose_province: "-- Hitamwo Intara --",
+        choose_commune: "-- Hitamwo Komine --",
+        choose_institution: "-- Hitamwo banki --",
     },
-    
-    en: { // English
-        // Navigation
+
+    /* ═══════════════════════════════════════════════════════════
+       KINYARWANDA
+    ═══════════════════════════════════════════════════════════ */
+    rw: {
+        nav_home: "Ahabanza",
+        nav_scoring: "Agri-Scoring & Inguzanyo FOMI",
+        nav_market: "Isoko ry'Ubuhinzi",
+        nav_livestock: "Ubworozi",
+        nav_diseases: "Indwara z'Ibimera & Amatungo",
+        nav_prices: "Ibiciro by'Amasoko",
+        nav_sos: "SOS Umuhinzi",
+        nav_guide: "Amabwiriza ya FOMI",
+        nav_admin: "Icyumba cy'Umuyobozi",
+        nav_superadmin: "⭐ Super Admin",
+
+        auth_login: "Injira",
+        auth_register: "Iyandikishe",
+        auth_logout: "Sohoka",
+        auth_email: "Imeyili",
+        auth_password: "Ijambo ryibanga",
+        auth_full_name: "Amazina yose",
+        auth_phone: "Telefoni",
+        auth_role: "Inshingano",
+        auth_role_farmer: "Umuhinzi",
+        auth_role_herder: "Umuworozi",
+        auth_role_client: "Umuguzi",
+        auth_create_account: "Fungura Konti Yange",
+        auth_signin: "Injira",
+        auth_already_account: "Ufite konti? Injira",
+        auth_no_account: "Nta konti ufite? Iyandikishe hano",
+        auth_connecting: "Injira irimo gukorwa…",
+        auth_disconnecting: "Gusohoka…",
+        auth_password_min: "Ijambo ryibanga rigomba kugira nibura inyuguti 8.",
+
+        welcome_title: "Murakaza neza kuri UBUMWE Agri",
+        welcome_subtitle: "Urubuga rw'ubuhinzi bwiza mu Burundi",
+        welcome_login_btn: "Injira",
+        welcome_register_btn: "Fungura Konti",
+        welcome_visit_btn: "Reba nta konti",
+
+        hero_title: "UBUMWE Agri : Inguzanyo z'Ubuhinzi, Ifumbire za FOMI & Isoko rya Burundi",
+        hero_subtitle: "Igisubizo cy'ubuhinzi bwiza : Suzuma amanota y'inguzanyo, ugurisha kandi ugure ibihingwa n'amatungo bitarenze ku bandi.",
+        hero_btn_score: "Barura Amanota Yange",
+        hero_btn_market: "Injira ku Isoko",
+        hero_btn_deposit: "Shyira Igicuruzwa",
+
+        scoring_title: "Ifishi yo Gusuzuma Inguzanyo z'Ifumbire",
+        scoring_subtitle: "Andika amakuru y'umurima kugira ngo ubone amanota no gusaba inguzanyo.",
+        scoring_farmer_name: "Amazina Yose y'Umuhinzi",
+        scoring_province: "Intara (Ivugurura rya 2025)",
+        scoring_commune: "Akarere / Umusozi",
+        scoring_crop: "Igihingwa Nyamukuru",
+        scoring_topography: "Imiterere y'Ubutaka",
+        scoring_soil: "Ubwoko bw'Ubutaka",
+        scoring_surface: "Ubugari (mu Mashami)",
+        scoring_phone: "Telefoni yo Gutumanahana",
+        scoring_institution: "Banki cyangwa SACCO",
+        scoring_calculate: "SUZUMA AMANOTA NO GUSABA IFUMBIRE",
+        scoring_result_title: "Amanota y'Inguzanyo y'Ubuhinzi",
+        scoring_eligible: "Wemerewe Inguzanyo",
+        scoring_conditional: "Inguzanyo ku Mpamvu",
+        scoring_fertilizer: "Ifumbire za FOMI Zirasabwa :",
+        scoring_quantity: "Ingano Yose :",
+        scoring_companion: "Ibimera Bifatanya :",
+        scoring_topo_advice: "Inama ku Miterere :",
+        scoring_send_request: "Ohereza Icyifuzo cy'Inguzanyo",
+        scoring_weather_bonus: "Inyongera y'Ibihe :",
+        scoring_weather_malus: "Igabanyizo cy'Ibihe :",
+        scoring_weather_loading: "Ibihe birimo gusangwa…",
+        scoring_weather_offline: "Ibihe ntibishobora kuboneka (nta internet)",
+        scoring_bags: "amasaka ya 25 kg",
+        scoring_repay: "Kwishura bisimbwa",
+
+        weather_title: "Ibihe by'Ubu",
+        weather_province: "Intara :",
+        weather_temp: "Ubushyuhe",
+        weather_rain: "Imvura",
+        weather_humidity: "Ubuhehere",
+        weather_wind: "Umuyaga",
+        weather_impact: "Ingaruka ku manota :",
+        weather_good: "Ibihe byiza",
+        weather_drought: "Akaga k'Amapfa",
+        weather_flood: "Akaga k'Imvura Nyinshi",
+        weather_optimal: "Ibihe Byiza Cyane",
+
+        market_title: "Isoko ry'Ubuhinzi & Ubworozi mu Burundi",
+        market_subtitle: "Gura kandi ugurisha ibihingwa n'amatungo bitarenze ku bandi.",
+        market_deposit: "Shyira Igicuruzwa / Igitungo",
+        market_all: "Ibicuruzwa Byose",
+        market_vegetal: "Ibihingwa",
+        market_animal: "Ubworozi & Amatungo",
+        market_province_all: "Intara Zose",
+        market_contact_seller: "Vugana n'Ugurisha",
+        market_no_products: "Nta gicuruzwa kiri muri iyi kategori ubu.",
+        market_price_unit: "Igiciro ku kimwe",
+        market_quantity: "Ingano",
+        market_total: "Igiteranyo",
+        market_province: "Intara",
+        market_available: "Kugurwa",
+        market_sold: "Bagurijwe",
+
+        deposit_title: "Shyira Igicuruzwa ku Isoko",
+        deposit_type: "Ubwoko bw'Igicuruzwa",
+        deposit_type_vegetal: "Igihingwa",
+        deposit_type_animal: "Igitungo (Ubworozi)",
+        deposit_category: "Icyiciro",
+        deposit_name: "Izina ry'Igicuruzwa",
+        deposit_quantity: "Ingano",
+        deposit_unit: "Igipimo",
+        deposit_price: "Igiciro ku kimwe (FB)",
+        deposit_province: "Intara",
+        deposit_commune: "Akarere",
+        deposit_whatsapp: "Nomero ya WhatsApp",
+        deposit_image: "URL y'Ifoto (si ngombwa)",
+        deposit_description: "Ibisobanuro",
+        deposit_submit: "Ohereza Igicuruzwa",
+        deposit_cancel: "Hagarika",
+
+        diseases_title: "Gusuzuma Indwara",
+        diseases_subtitle: "Menya indwara z'ibimera n'amatungo, ubone imiti.",
+        diseases_search: "Shakisha indwara…",
+        diseases_all: "Byose",
+        diseases_plants: "Ibimera",
+        diseases_animals: "Amatungo",
+        diseases_severity: "Ubukana",
+        diseases_see_remedy: "Reba imiti →",
+        diseases_symptoms: "Ibimenyetso",
+        diseases_treatment: "Imiti / Gukira",
+        diseases_prevention: "Kwirinda",
+        diseases_cause: "Impamvu & Isuzuma",
+        diseases_vaccine: "Urukingo",
+        diseases_zoonotic: "⚠️ ZOONOSE - Ingaruka ku Muntu",
+        diseases_not_found: "Nta ndwara yaboneka muri iyi gushakisha.",
+        diseases_source: "Inkomoko",
+
+        prices_title: "Ibiciro by'Amasoko Afatika",
+        prices_subtitle: "Amakuru SIM/MINEAGRIE, INSBU, PAM-VAM — Ivugurura buri cyumweru",
+        prices_product: "Igicuruzwa",
+        prices_min: "Igiciro Gito",
+        prices_max: "Igiciro Kinini",
+        prices_avg: "Igiciro Hagati",
+        prices_market: "Isoko Ry'Ingaruka",
+        prices_source: "Inkomoko",
+        prices_official_sources: "Inkomoko Zihamye",
+        prices_markets_by_province: "Amasoko ku Ntara",
+
+        sos_title: "SOS Umuhinzi — Ubufasha Bw'Ihutirwa",
+        sos_subtitle: "Igikoresho cya USSD ku ntara zidafite internet",
+        sos_enter_number: "Injiza nomero ya USSD",
+        sos_call: "Hamagara",
+
+        guide_title: "Urutonde rw'Ifumbire za FOMI",
+        guide_subtitle: "Ibicuruzwa byose bya FOMI hamwe n'ingero z'imirima.",
+
+        livestock_title: "Ubworozi & Amatungo",
+        livestock_subtitle: "Gura kandi ugurisha amatungo yawe atarenze ku bandi.",
+        livestock_no_animals: "Nta gitungo kigurwa ubu.",
+
+        toast_welcome: "Murakaza neza",
+        toast_login_success: "Winjiye neza !",
+        toast_logout: "Wasohokeje.",
+        toast_signup_success: "Wiyandikishije neza ! Reba imeyili yawe hanyuma winjire.",
+        toast_phone_invalid: "Telefoni ntiyuzuye (urugero: +257 79 123 456).",
+        toast_fill_fields: "Uzuza imyanya yose.",
+        toast_product_submitted: "Igicuruzwa cyoherejwe ! Gitegereza kwemezwa.",
+        toast_product_published: "Igicuruzwa cyaratangajwe !",
+        toast_score_calculated: "Amanota yarabawe neza",
+        toast_credit_sent: "Icyifuzo cy'inguzanyo cyanditswe neza !",
+        toast_must_login: "Ugomba kwinjira kugira ngo ushyireho igicuruzwa.",
+        toast_weather_ok: "Ibihe byasanzwe neza.",
+        toast_weather_fail: "Ibihe ntibishobora gusangwa.",
+        toast_rating_saved: "Urakoze ku gusuzuma !",
+        toast_offline: "Ukora nta internet.",
+        toast_online: "Internet yasubiye.",
+
+        admin_title: "Icyumba cy'Umuyobozi",
+        admin_subtitle: "Kwemeza ibicuruzwa, gucunga abantu no kugenzura sisitemu.",
+        admin_pending: "Ibicuruzwa Bitegereje",
+        admin_approved: "Ibicuruzwa Byemejwe",
+        admin_credits: "Ibisabwa by'Inguzanyo",
+        admin_users: "Abakoresha Bakora",
+        admin_validate: "Emeza",
+        admin_reject: "Banza",
+        admin_no_pending: "Nta gicuruzwa gitegereje. Byose byemejwe !",
+        admin_reset_demo: "Subiza Demo",
+        admin_demo_mode: "Uburyo bwo Kugenzura",
+        admin_security: "Raporo y'Umutekano",
+        admin_layer1: "Inzira 1 — Isuzuma",
+        admin_layer2: "Inzira 2 — Isesengura",
+        admin_layer3: "Inzira 3 — Kurinda",
+
+        superadmin_title: "⭐ Super Admin — Icyumba Cyihishe",
+        superadmin_subtitle: "Injirwa n'abayobozi bakuru gusa.",
+        superadmin_users_total: "Abakoresha Bose",
+        superadmin_visits_today: "Inzira z'Uyu Munsi",
+        superadmin_revenue: "Inyungu (BIF)",
+        superadmin_rating: "Amanota Hagati",
+        superadmin_chart_users: "Iterambere ry'Abakoresha",
+        superadmin_chart_revenue: "Iterambere ry'Inyungu",
+        superadmin_chart_visits: "Inzira ku Munsi",
+        superadmin_chart_rating: "Ibisobanuro by'Abakoresha",
+        superadmin_ratings_list: "Amasuzuma ya Vuba",
+        superadmin_no_ratings: "Nta masuzuma arahari.",
+        superadmin_export: "Koporora CSV",
+        superadmin_reset: "Subiza Imibare",
+
+        rating_title: "Ibitekerezo byawe kuri UBUMWE Agri",
+        rating_subtitle: "Dufashe kunoza serivisi yacu",
+        rating_placeholder: "Siga ibitekerezo (si ngombwa)…",
+        rating_submit: "Ohereza ibitekerezo",
+        rating_thanks: "Urakoze ku gusuzuma !",
+        rating_total: "amasuzuma",
+        rating_label_1: "Bibi cyane",
+        rating_label_2: "Bibi",
+        rating_label_3: "Bihagije",
+        rating_label_4: "Byiza",
+        rating_label_5: "Byiza cyane",
+
+        status_online: "Kuri interineti",
+        status_offline: "Nta interineti",
+        status_syncing: "Guhuza amakuru…",
+
+        footer_partners: "Inzego z'Ifumbire",
+        footer_db: "Ububiko bw'Amakuru",
+        footer_livestock: "Ubworozi & Amatungo",
+        footer_direct_sale: "Kugurisha Bitarenze",
+        footer_rights: "Uburenganzira bwose burindwa",
+
+        crop_corn: "Ibigori", crop_banana: "Ingbisi / Ibitoki", crop_bean: "Ibishyimbo",
+        crop_cassava: "Imyumbati", crop_rice: "Umuceri", crop_coffee: "Ikawa",
+        crop_potato: "Ibirayi", crop_sorgho: "Amasaka",
+        crop_peas: "Ibishyimbo Bito", crop_tomato: "Inyanya", crop_cabbage: "Ishu",
+
+        province_gitega: "Gitega", province_buhumuza: "Buhumuza",
+        province_bujumbura: "Bujumbura", province_burunga: "Burunga",
+        province_butanyerera: "Butanyerera",
+
+        choose_province: "-- Hitamo Intara --",
+        choose_commune: "-- Hitamo Akarere --",
+        choose_institution: "-- Hitamo banki --",
+    },
+
+    /* ═══════════════════════════════════════════════════════════
+       ENGLISH
+    ═══════════════════════════════════════════════════════════ */
+    en: {
         nav_home: "Home",
         nav_scoring: "Agri-Scoring & FOMI Credit",
         nav_market: "Agricultural Marketplace",
         nav_livestock: "Livestock & Cattle",
+        nav_diseases: "Disease Diagnosis",
+        nav_prices: "Market Prices",
+        nav_sos: "SOS Farmer",
         nav_guide: "FOMI Guide",
         nav_admin: "Admin Dashboard",
-        
-        // Authentification
+        nav_superadmin: "⭐ Super Admin",
+
         auth_login: "Login",
         auth_register: "Sign Up",
         auth_logout: "Logout",
@@ -288,20 +779,27 @@ const translations = {
         auth_role: "Role",
         auth_role_farmer: "Farmer",
         auth_role_herder: "Herder",
-        auth_role_client: "Client/Buyer",
+        auth_role_client: "Client / Buyer",
         auth_create_account: "Create My Account",
         auth_signin: "Sign In",
         auth_already_account: "Already have an account? Sign in",
         auth_no_account: "Don't have an account? Sign up here",
-        
-        // Hero
+        auth_connecting: "Connecting…",
+        auth_disconnecting: "Logging out…",
+        auth_password_min: "Password must be at least 8 characters.",
+
+        welcome_title: "Welcome to UBUMWE Agri",
+        welcome_subtitle: "Burundi's precision agriculture platform",
+        welcome_login_btn: "Log In",
+        welcome_register_btn: "Create Account",
+        welcome_visit_btn: "Browse without account",
+
         hero_title: "UBUMWE Agri: Agricultural Credit, FOMI Fertilizers & Burundi Marketplace",
         hero_subtitle: "Complete precision agriculture solution: Assess your fertilizer credit score, sell and buy crops and livestock without intermediaries.",
         hero_btn_score: "Calculate My Credit Score",
         hero_btn_market: "Access Marketplace",
         hero_btn_deposit: "List a Product",
-        
-        // Scoring
+
         scoring_title: "Fertilizer Credit Assessment Form",
         scoring_subtitle: "Enter plot details to get a confidence score and apply for input credit.",
         scoring_farmer_name: "Farmer's Full Name",
@@ -312,6 +810,7 @@ const translations = {
         scoring_soil: "Soil Texture",
         scoring_surface: "Area (in Hectares)",
         scoring_phone: "Burundi Contact Phone",
+        scoring_institution: "Bank or Microfinance",
         scoring_calculate: "EVALUATE SCORE AND RECOMMEND FERTILIZER",
         scoring_result_title: "Agricultural Credit Score",
         scoring_eligible: "Eligible for Credit",
@@ -321,8 +820,25 @@ const translations = {
         scoring_companion: "Companion Plants:",
         scoring_topo_advice: "Topography Advice:",
         scoring_send_request: "Send Official Credit Request",
-        
-        // Marketplace
+        scoring_weather_bonus: "Weather bonus applied:",
+        scoring_weather_malus: "Weather penalty applied:",
+        scoring_weather_loading: "Loading weather…",
+        scoring_weather_offline: "Weather unavailable (offline)",
+        scoring_bags: "bags of 25 kg",
+        scoring_repay: "Estimated repayment",
+
+        weather_title: "Current Weather",
+        weather_province: "Province:",
+        weather_temp: "Temperature",
+        weather_rain: "Rainfall",
+        weather_humidity: "Humidity",
+        weather_wind: "Wind",
+        weather_impact: "Impact on score:",
+        weather_good: "Favorable conditions",
+        weather_drought: "Drought risk",
+        weather_flood: "Flood risk",
+        weather_optimal: "Optimal conditions",
+
         market_title: "Agricultural & Livestock Marketplace Burundi",
         market_subtitle: "Buy and sell crops and livestock directly without intermediaries.",
         market_deposit: "List a Product / Animal",
@@ -335,8 +851,10 @@ const translations = {
         market_price_unit: "Unit price",
         market_quantity: "Qty",
         market_total: "Total",
-        
-        // Deposit modal
+        market_province: "Province",
+        market_available: "Available",
+        market_sold: "Sold",
+
         deposit_title: "List a Product on the Marketplace",
         deposit_type: "Product Type",
         deposit_type_vegetal: "Crop Product",
@@ -353,12 +871,51 @@ const translations = {
         deposit_description: "Description",
         deposit_submit: "Submit Product",
         deposit_cancel: "Cancel",
-        
-        // Toasts
+
+        diseases_title: "Disease Diagnosis",
+        diseases_subtitle: "Identify crop and animal diseases, get remedies.",
+        diseases_search: "Search disease…",
+        diseases_all: "All",
+        diseases_plants: "Plants",
+        diseases_animals: "Animals",
+        diseases_severity: "Severity",
+        diseases_see_remedy: "See remedies →",
+        diseases_symptoms: "Symptoms",
+        diseases_treatment: "Treatment / Remedies",
+        diseases_prevention: "Prevention",
+        diseases_cause: "Cause & Diagnosis",
+        diseases_vaccine: "Vaccine",
+        diseases_zoonotic: "⚠️ ZOONOSIS - Human danger",
+        diseases_not_found: "No disease found for this search.",
+        diseases_source: "Source",
+
+        prices_title: "Official Market Prices",
+        prices_subtitle: "SIM/MINEAGRIE, INSBU, PAM-VAM data — Updated weekly",
+        prices_product: "Product",
+        prices_min: "Min Price",
+        prices_max: "Max Price",
+        prices_avg: "Avg Price",
+        prices_market: "Ref. Market",
+        prices_source: "Source",
+        prices_official_sources: "Official Sources",
+        prices_markets_by_province: "Markets by Province",
+
+        sos_title: "SOS Farmer — Emergency Help",
+        sos_subtitle: "USSD simulator for offline areas",
+        sos_enter_number: "Enter USSD number",
+        sos_call: "Call",
+
+        guide_title: "Official FOMI Fertilizer Guide",
+        guide_subtitle: "All FOMI products with dosages and recommended crops.",
+
+        livestock_title: "Livestock & Cattle",
+        livestock_subtitle: "Buy and sell animals directly.",
+        livestock_no_animals: "No animals for sale at the moment.",
+
         toast_welcome: "Welcome",
         toast_login_success: "Login successful!",
         toast_logout: "You have been logged out.",
-        toast_signup_success: "Registration successful! Please login.",
+        toast_signup_success: "Registration successful! Check your email then login.",
         toast_phone_invalid: "Invalid phone format (ex: +257 79 123 456).",
         toast_fill_fields: "Please fill in all fields.",
         toast_product_submitted: "Product submitted! Pending Admin validation.",
@@ -366,8 +923,12 @@ const translations = {
         toast_score_calculated: "Score calculated successfully",
         toast_credit_sent: "Credit request successfully registered!",
         toast_must_login: "Please login to list a product.",
-        
-        // Admin
+        toast_weather_ok: "Weather loaded successfully.",
+        toast_weather_fail: "Could not load weather data.",
+        toast_rating_saved: "Thank you for your rating!",
+        toast_offline: "Offline mode activated.",
+        toast_online: "Internet connection restored.",
+
         admin_title: "Administrator Dashboard",
         admin_subtitle: "Market listing validation, role management and system control.",
         admin_pending: "Pending Products",
@@ -379,68 +940,129 @@ const translations = {
         admin_no_pending: "No pending products. Everything is validated!",
         admin_reset_demo: "Reset demo",
         admin_demo_mode: "Test Admin Mode",
-        
-        // Cultures
-        crop_corn: "Corn",
-        crop_banana: "Banana",
-        crop_bean: "Bean",
-        crop_cassava: "Cassava",
-        crop_rice: "Rice (Lowland)",
-        crop_coffee: "Coffee",
-        crop_potato: "Potato",
-        
-        // Provinces
-        province_gitega: "Gitega",
-        province_buhumuza: "Buhumuza",
-        province_bujumbura: "Bujumbura",
-        province_burunga: "Burunga",
+        admin_security: "Security Report",
+        admin_layer1: "Layer 1 — Detector",
+        admin_layer2: "Layer 2 — Analyst",
+        admin_layer3: "Layer 3 — Defender",
+
+        superadmin_title: "⭐ Super Admin — Private Dashboard",
+        superadmin_subtitle: "Access restricted to main administrators only.",
+        superadmin_users_total: "Total Users",
+        superadmin_visits_today: "Today's Visits",
+        superadmin_revenue: "Revenue (BIF)",
+        superadmin_rating: "Average Rating",
+        superadmin_chart_users: "User Growth",
+        superadmin_chart_revenue: "Revenue Growth",
+        superadmin_chart_visits: "Daily Visits",
+        superadmin_chart_rating: "User Satisfaction",
+        superadmin_ratings_list: "Latest Reviews",
+        superadmin_no_ratings: "No ratings yet.",
+        superadmin_export: "Export CSV",
+        superadmin_reset: "Reset Stats",
+
+        rating_title: "Your opinion on UBUMWE Agri",
+        rating_subtitle: "Help us improve the service",
+        rating_placeholder: "Leave a comment (optional)…",
+        rating_submit: "Submit my review",
+        rating_thanks: "Thank you for your review!",
+        rating_total: "reviews",
+        rating_label_1: "Very bad",
+        rating_label_2: "Bad",
+        rating_label_3: "Fair",
+        rating_label_4: "Good",
+        rating_label_5: "Excellent",
+
+        status_online: "Online",
+        status_offline: "Offline",
+        status_syncing: "Syncing…",
+
+        footer_partners: "Fertilizer Partner",
+        footer_db: "Database",
+        footer_livestock: "Livestock & Cattle",
+        footer_direct_sale: "Direct Sale",
+        footer_rights: "All rights reserved",
+
+        crop_corn: "Corn", crop_banana: "Banana", crop_bean: "Bean",
+        crop_cassava: "Cassava", crop_rice: "Rice (Lowland)", crop_coffee: "Coffee",
+        crop_potato: "Potato", crop_sorgho: "Sorghum",
+        crop_peas: "Peas", crop_tomato: "Tomato", crop_cabbage: "Cabbage",
+
+        province_gitega: "Gitega", province_buhumuza: "Buhumuza",
+        province_bujumbura: "Bujumbura", province_burunga: "Burunga",
         province_butanyerera: "Butanyerera",
+
+        choose_province: "-- Choose Province --",
+        choose_commune: "-- Choose Commune --",
+        choose_institution: "-- Choose institution --",
     }
 };
 
-// Langue par défaut
+/* ═══════════════════════════════════════════════════════════════
+   MOTEUR I18N
+═══════════════════════════════════════════════════════════════ */
 let currentLang = localStorage.getItem('UBUMWE_LANG') || 'fr';
 
-// Fonction pour obtenir une traduction
 function t(key) {
-    return translations[currentLang][key] || translations.fr[key] || key;
+    return (translations[currentLang] && translations[currentLang][key])
+        || (translations.fr && translations.fr[key])
+        || key;
 }
 
-// Fonction pour changer de langue
 function setLanguage(lang) {
     if (!translations[lang]) return;
     currentLang = lang;
     localStorage.setItem('UBUMWE_LANG', lang);
     translatePage();
+    // Mettre à jour le scoring si visible (recalcul météo label)
+    if (typeof weatherApp !== 'undefined') weatherApp.updateLabels();
 }
 
-// Fonction pour traduire toute la page
 function translatePage() {
-    // Traduire tous les éléments avec data-i18n
+    // 1. Éléments avec data-i18n (textContent)
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        const translation = t(key);
-        
-        // Choisir la méthode d'insertion selon le type d'élément
+        const val = t(key);
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-            if (el.type === 'button' || el.type === 'submit') {
-                el.value = translation;
-            } else {
-                el.placeholder = translation;
-            }
+            if (el.type === 'button' || el.type === 'submit') el.value = val;
+            else el.placeholder = val;
         } else if (el.hasAttribute('data-i18n-html')) {
-            el.innerHTML = translation;
+            el.innerHTML = val;
         } else {
-            el.textContent = translation;
+            el.textContent = val;
         }
     });
-    
-    // Mettre à jour le sélecteur actif
+
+    // 2. Éléments avec data-i18n-placeholder (placeholder seulement)
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+    });
+
+    // 3. Éléments avec data-i18n-title (title tooltip)
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = t(el.getAttribute('data-i18n-title'));
+    });
+
+    // 4. Éléments avec data-i18n-aria (aria-label)
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
+    });
+
+    // 5. Options <select> avec data-i18n-option
+    document.querySelectorAll('option[data-i18n]').forEach(el => {
+        el.textContent = t(el.getAttribute('data-i18n'));
+    });
+
+    // 6. Mettre à jour les boutons de langue
     document.querySelectorAll('.lang-btn').forEach(btn => {
-        if (btn.getAttribute('data-lang') === currentLang) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
+        const active = btn.getAttribute('data-lang') === currentLang;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
     });
+
+    // 7. Redessiner les éléments dynamiques qui contiennent du texte
+    if (typeof app !== 'undefined') {
+        if (app.renderMarketplace) app.renderMarketplace();
+        if (app.renderDiseases)   app.renderDiseases();
+        if (app.renderAdminQueue) app.renderAdminQueue();
+    }
 }

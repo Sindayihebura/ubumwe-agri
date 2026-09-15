@@ -564,10 +564,42 @@ const app = {
         this.renderAdminQueue();
         this.updateBadgeStatus();
         this.renderDiseases();
+        // Initialiser le widget de notation
+        if (typeof ratingApp !== 'undefined') ratingApp.init();
+        // Écouter online/offline
+        this.initNetworkListeners();
+        // Appliquer la traduction complète au démarrage
+        if (typeof translatePage === 'function') translatePage();
+    },
+
+    // ── Surveiller connexion réseau ───────────────────────────
+    initNetworkListeners() {
+        const badge = document.getElementById('online-badge');
+        const badgeTxt = document.getElementById('online-badge-text');
+        const update = () => {
+            const isOnline = navigator.onLine;
+            if (badge) {
+                badge.classList.remove('hidden');
+                badge.className = isOnline
+                    ? 'sm:flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300'
+                    : 'sm:flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-700/60 text-slate-400';
+                const dot = badge.querySelector('span:first-child');
+                if (dot) dot.className = isOnline
+                    ? 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block'
+                    : 'w-1.5 h-1.5 rounded-full bg-slate-500 inline-block';
+            }
+            if (badgeTxt) badgeTxt.setAttribute('data-i18n', isOnline ? 'status_online' : 'status_offline');
+            if (typeof translatePage === 'function') translatePage();
+            showToast(t(isOnline ? 'toast_online' : 'toast_offline'), isOnline ? 'success' : 'warning');
+        };
+        window.addEventListener('online',  update);
+        window.addEventListener('offline', update);
+        // État initial silencieux
+        if (badge) { badge.classList.remove('hidden'); }
     },
 
     showScreen(screenId) {
-        const screens = ['home', 'scoring', 'market', 'livestock', 'guide', 'prices', 'sos', 'diseases', 'admin'];
+        const screens = ['home', 'scoring', 'market', 'livestock', 'guide', 'prices', 'sos', 'diseases', 'admin', 'superadmin'];
         screens.forEach(s => {
             const el = document.getElementById(`screen-${s}`);
             if (el) el.classList.add('hidden');
@@ -598,11 +630,14 @@ const app = {
         }
 
         state.currentScreen = screenId;
-        if (screenId === 'prices') this.renderPrices();
+        if (screenId === 'prices')      this.renderPrices();
+        if (screenId === 'superadmin' && typeof superAdmin !== 'undefined') superAdmin.render();
         if (screenId === 'sos' && typeof ussdApp !== 'undefined') ussdApp.init();
-        // Fermer le menu hamburger si ouvert
+        // Fermer le menu hamburger automatiquement
         if (typeof hamburgerOpen !== 'undefined' && hamburgerOpen && typeof toggleHamburger === 'function') toggleHamburger();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Re-traduire les éléments dynamiques
+        if (typeof translatePage === 'function') translatePage();
     },
 
     updateBadgeStatus() {
@@ -718,53 +753,61 @@ const app = {
 
         this.closeAuthModal();
         this.updateAuthUI();
-        // Débloquer l'application après connexion réussie
-        if (typeof unlockApp === 'function') unlockApp();
-        // Signaler connexion réussie au système de sécurité
-        if (typeof UbumweSecurity !== 'undefined') UbumweSecurity.reportSuccess();
+        // Afficher le loading screen 2-3 secondes
+        showLoadingScreen(t('auth_connecting'), () => {
+            if (typeof unlockApp === 'function') unlockApp();
+            if (typeof UbumweSecurity !== 'undefined') UbumweSecurity.reportSuccess();
+            if (typeof translatePage === 'function') translatePage();
+        });
     },
 
     logout() {
-        if (isSupabaseConnected) supabaseClient.auth.signOut();
-        state.setCurrentUser(null);
-        this.updateAuthUI();
-        showToast('Vous avez été déconnecté.', 'warning');
-        // Retour à la page de bienvenue
-        const ws = document.getElementById('welcome-screen');
-        const ma = document.getElementById('main-app');
-        if (ws) { ws.style.display = ''; ws.classList.remove('hidden'); }
-        if (ma) { ma.classList.add('hidden'); ma.classList.remove('flex','flex-col'); }
+        showLoadingScreen(t('auth_disconnecting'), () => {
+            if (isSupabaseConnected) supabaseClient.auth.signOut();
+            state.setCurrentUser(null);
+            this.updateAuthUI();
+            showToast(t('toast_logout'), 'warning');
+            // Retour à la page de bienvenue
+            const ws = document.getElementById('welcome-screen');
+            const ma = document.getElementById('main-app');
+            if (ws) { ws.style.display = ''; ws.classList.remove('hidden'); }
+            if (ma) { ma.classList.add('hidden'); ma.classList.remove('flex','flex-col'); }
+        });
     },
 
     updateAuthUI() {
-        const authContainer = document.getElementById('auth-buttons-container');
-        const userContainer = document.getElementById('user-profile-container');
-        const adminNavBtn   = document.getElementById('nav-admin');
-        const adminMobileBtn= document.getElementById('nav-mobile-admin');
-        const menuAdminBtn  = document.getElementById('menu-admin-btn');
-        const menuLogoutBtn = document.getElementById('menu-logout-btn');
-        const menuAuthBtns  = document.getElementById('menu-auth-btns');
+        const authContainer   = document.getElementById('auth-buttons-container');
+        const userContainer   = document.getElementById('user-profile-container');
+        const adminNavBtn     = document.getElementById('nav-admin');
+        const adminMobileBtn  = document.getElementById('nav-mobile-admin');
+        const menuAdminBtn    = document.getElementById('menu-admin-btn');
+        const menuSuperBtn    = document.getElementById('menu-superadmin-btn');
+        const menuLogoutBtn   = document.getElementById('menu-logout-btn');
+        const menuAuthBtns    = document.getElementById('menu-auth-btns');
 
         if (state.currentUser) {
             if (authContainer) authContainer.classList.add('hidden');
             if (userContainer) userContainer.classList.remove('hidden');
 
             const name = state.currentUser.fullName || state.currentUser.email || 'U';
-            const nameEl = document.getElementById('user-display-name');
-            const roleEl = document.getElementById('user-display-role');
+            const nameEl    = document.getElementById('user-display-name');
+            const roleEl    = document.getElementById('user-display-role');
             const avatarBtn = document.getElementById('user-avatar-btn');
-            if (nameEl) nameEl.textContent = name;
-            if (roleEl) roleEl.textContent = state.currentUser.role.toUpperCase();
+            if (nameEl)    nameEl.textContent    = name;
+            if (roleEl)    roleEl.textContent    = state.currentUser.role.toUpperCase();
             if (avatarBtn) avatarBtn.textContent = name.charAt(0).toUpperCase();
 
             // Menu hamburger
             if (menuAuthBtns)  menuAuthBtns.style.display = 'none';
             if (menuLogoutBtn) { menuLogoutBtn.style.display = ''; menuLogoutBtn.classList.remove('hidden'); }
 
-            const isAdmin = ['admin','super_admin'].includes(state.currentUser.role);
-            if (adminNavBtn)   adminNavBtn.classList.toggle('hidden', !isAdmin);
-            if (adminMobileBtn)adminMobileBtn.classList.toggle('hidden', !isAdmin);
-            if (menuAdminBtn)  { menuAdminBtn.classList.toggle('hidden', !isAdmin); if (isAdmin) menuAdminBtn.style.display = ''; }
+            const isAdmin      = ['admin','super_admin'].includes(state.currentUser.role);
+            const isSuperAdmin = state.currentUser.role === 'super_admin' || state.currentUser.email === 'admin@ubumwe.bi';
+
+            if (adminNavBtn)    adminNavBtn.classList.toggle('hidden', !isAdmin);
+            if (adminMobileBtn) adminMobileBtn.classList.toggle('hidden', !isAdmin);
+            if (menuAdminBtn)   { menuAdminBtn.classList.toggle('hidden', !isAdmin); if (isAdmin) menuAdminBtn.style.display = ''; }
+            if (menuSuperBtn)   { menuSuperBtn.classList.toggle('hidden', !isSuperAdmin); if (isSuperAdmin) menuSuperBtn.style.display = ''; }
         } else {
             if (authContainer) authContainer.classList.remove('hidden');
             if (userContainer) userContainer.classList.add('hidden');
@@ -863,12 +906,12 @@ const app = {
             errPhone.classList.add('hidden');
         }
         if (isNaN(surface) || surface <= 0) {
-            showToast('Superficie invalide (doit être > 0).', 'error');
+            showToast(t('scoring_surface') + ' > 0', 'error');
             hasError = true;
         }
         if (hasError) return;
 
-        // Algorithme de scoring
+        // ── Algorithme de scoring ─────────────────────────────
         let score = 50;
         if (topography.includes('Plateau')) score += 20;
         else if (topography.includes('Plaine')) score += 15;
@@ -880,42 +923,60 @@ const app = {
         else if (soil === 'Sable') score += 5;
 
         if (surface >= 0.5 && surface <= 5.0) score += 10;
+
+        // ── Bonus météo temps réel ────────────────────────────
+        const weatherBonus = (typeof weatherApp !== 'undefined') ? weatherApp.getScoreBonus() : 0;
+        score += weatherBonus;
         score = Math.min(Math.max(score, 10), 98);
 
-        // Recommandation FOMI réelle (tarifs officiels BIF)
+        // ── Recommandation FOMI (tarifs officiels BIF) ────────
         const fomi = calculateRealFomiNeeds(crop, surface);
-        const totalFertilizer = fomi.sacs_total * 25; // kg = sacs * 25kg
+        const totalFertilizer = fomi.sacs_total * 25;
 
-        // Calcul coût crédit selon institution bancaire
+        // ── Coût crédit selon institution ─────────────────────
         const institution = document.getElementById('score-institution')?.value || 'FENACOBU';
-        const taux = (institution === 'BCAB' || institution === 'BNDE') ? 7 : 15;
-        const cout_credit = Math.round(fomi.cout_total_bif * (1 + taux/100));
+        const taux        = (institution === 'BCAB' || institution === 'BNDE') ? 7 : 15;
+        const cout_credit = Math.round(fomi.cout_total_bif * (1 + taux / 100));
         const saison_actuelle = getCurrentSaison();
-        const saison_info = SAISONS_BURUNDI[saison_actuelle];
+        const saison_info     = SAISONS_BURUNDI[saison_actuelle];
 
-        // Conseil topographique
+        // ── Conseil topographique ─────────────────────────────
         let topoAdvice = '';
-        if (topography.includes('Pente')) topoAdvice = '⚠️ Pratiquez les courbes de niveau (zigzag) et creusez des fossés fanya juu pour retenir l\'eau.';
-        else if (topography.includes('Plaine')) topoAdvice = '💧 Créez des canaux de drainage. Privilégiez le Riz ou légumes tolérants à l\'eau.';
-        else if (topography.includes('Plateau')) topoAdvice = '🌬️ Plantez des haies vives pour couper le vent. Ne laissez pas le sol nu.';
+        if (topography.includes('Pente'))    topoAdvice = '⚠️ ' + t('scoring_topo_advice') + ' courbes de niveau (zigzag), fossés fanya juu.';
+        else if (topography.includes('Plaine')) topoAdvice = '💧 Canaux de drainage. Riz ou légumes tolérants à l\'eau.';
+        else if (topography.includes('Plateau')) topoAdvice = '🌬️ Haies vives coupe-vent. Sol couvert en permanence.';
 
-        // Plantes associées
-        const companions = { 'Maïs': 'Haricot (fixe l\'azote) + Courge (couvre-sol)', 'Manioc': 'Arachide ou Niébé', 'Café': 'Bananier (ombrage) + Légumineuses', 'Haricot': 'Maïs (tuteur naturel)', 'Riz': 'Légumineuses sur les bords', 'Banane': 'Café + Légumineuses' };
-        const companion = companions[crop] || 'Cultures en rotation recommandées';
+        // ── Plantes associées ─────────────────────────────────
+        const companions = {
+            'Maïs': 'Haricot + Courge', 'Manioc': 'Arachide ou Niébé',
+            'Café': 'Bananier (ombrage) + Légumineuses', 'Haricot': 'Maïs (tuteur)',
+            'Riz': 'Légumineuses sur bordure', 'Banane': 'Café + Légumineuses'
+        };
+        const companion = companions[crop] || t('scoring_companion');
 
         const container = document.getElementById('scoring-result-container');
         container.classList.remove('hidden');
+
+        // ── Badge météo dans le résultat ──────────────────────
+        const weatherBadge = weatherBonus !== 0 ? `
+            <div class="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg ${weatherBonus > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                <i class="fa-solid fa-cloud-sun"></i>
+                <span>${weatherBonus > 0 ? t('scoring_weather_bonus') : t('scoring_weather_malus')} <strong>${weatherBonus > 0 ? '+' : ''}${weatherBonus} pts</strong></span>
+            </div>` : '';
+
         container.innerHTML = `
             <div class="rounded-xl p-5 border ${score >= 70 ? 'bg-emerald-50 border-emerald-300' : 'bg-amber-50 border-amber-300'} space-y-4">
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                        <span class="text-xs font-bold text-slate-500 uppercase">Score de Crédit Agronomique</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase" data-i18n="scoring_result_title">${t('scoring_result_title')}</span>
                         <h3 class="text-3xl font-black ${score >= 70 ? 'text-emerald-800' : 'text-amber-800'}">${score} / 100</h3>
                     </div>
                     <div class="px-3 py-1 rounded-full text-xs font-extrabold ${score >= 70 ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-200 text-amber-900'}">
-                        ${score >= 70 ? '✓ Éligible au Crédit' : '⚠️ Crédit Sous Condition'}
+                        ${score >= 70 ? '✓ ' + t('scoring_eligible') : '⚠️ ' + t('scoring_conditional')}
                     </div>
                 </div>
+
+                ${weatherBadge}
 
                 <!-- Alerte saison -->
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs">
@@ -1555,3 +1616,80 @@ const app = {
 document.addEventListener('DOMContentLoaded', () => {
     app.init();
 });
+
+/* ═══════════════════════════════════════════════════════════════
+   LOADING SCREEN — Fonction globale 2-3 secondes
+═══════════════════════════════════════════════════════════════ */
+function showLoadingScreen(message, callback) {
+    const screen = document.getElementById('loading-screen');
+    const msg    = document.getElementById('loading-msg');
+    const bar    = document.getElementById('loading-bar');
+    if (!screen) { if (callback) callback(); return; }
+
+    if (msg) msg.textContent = message || t('auth_connecting');
+    screen.classList.remove('hidden');
+
+    // Barre de progression animée sur 2.5 secondes
+    let pct = 0;
+    const duration = 2500;
+    const interval = 40;
+    const step = (interval / duration) * 100;
+
+    const timer = setInterval(() => {
+        pct = Math.min(pct + step + Math.random() * 2, 100);
+        if (bar) bar.style.width = pct + '%';
+        if (pct >= 100) {
+            clearInterval(timer);
+            setTimeout(() => {
+                screen.classList.add('hidden');
+                if (bar) bar.style.width = '0%';
+                if (callback) callback();
+            }, 300);
+        }
+    }, interval);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMMUNES + MÉTÉO — Mise à jour quand province change
+═══════════════════════════════════════════════════════════════ */
+function updateCommunes(province) {
+    const COMMUNES_PAR_PROVINCE = {
+        'BUJUMBURA':   ['Bubanza','Bukinanyana','Cibitoke','Isare','Mpanda','Mugere','Mugina','Muhuta','Mukaza','Ntahangwa','Rwibaga'],
+        'GITEGA':      ['Bugendana','Gishubi','Gitega','Karusi','Kiganda','Muramvya','Mwaro','Nyabihanga','Shombo'],
+        'BUTANYERERA': ['Busoni','Kayanza','Kiremba','Kirundo','Matongo','Muhanga','Ngozi','Tangara'],
+        'BURUNGA':     ['Bururi','Makamba','Matana','Musongati','Nyanza-Lac','Rumonge','Rutana'],
+        'BUHUMUZA':    ['Butaganzwa','Butihinda','Cankuzo','Gisagara','Gisuru','Muyinga','Ruyigi']
+    };
+    const communes = COMMUNES_PAR_PROVINCE[province] || [];
+    const opts = `<option value="">${t('choose_commune')}</option>` +
+        communes.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    const sel = document.getElementById('score-commune');
+    const mSel = document.getElementById('deposit-commune');
+    if (sel)  sel.innerHTML  = opts;
+    if (mSel) mSel.innerHTML = opts;
+
+    // ── Charger la météo en temps réel pour cette province ────
+    if (province && typeof weatherApp !== 'undefined') {
+        weatherApp.renderWidget(province);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROTECTION CODE — Désactivation clic droit + devtools basique
+   (Protection légère côté client — vraie protection = obfuscation)
+═══════════════════════════════════════════════════════════════ */
+(function protectCode() {
+    // Désactiver clic droit sur mobile
+    document.addEventListener('contextmenu', e => {
+        if ('ontouchstart' in window) e.preventDefault();
+    });
+    // Désactiver sélection texte sur éléments non-input
+    document.addEventListener('selectstart', e => {
+        const tag = e.target.tagName;
+        if (!['INPUT','TEXTAREA','SELECT'].includes(tag)) {
+            // Autoriser sur certains éléments seulement
+        }
+    });
+})();
+

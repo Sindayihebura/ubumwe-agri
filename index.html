@@ -246,6 +246,39 @@
     <!-- TOAST DE NOTIFICATION (SUCCÈS / ERREUR) -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- LOADING SCREEN — Affiché 2-3s à la connexion/déconnexion -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="loading-screen" class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center"
+         style="background:linear-gradient(160deg,#0b1d15 0%,#163829 60%,#0b1d15 100%)">
+        <div class="flex flex-col items-center gap-6 text-center px-8">
+            <!-- Logo animé -->
+            <div class="relative">
+                <div class="w-20 h-20 rounded-2xl bg-amber-400 flex items-center justify-center shadow-2xl animate-pulse">
+                    <i class="fa-solid fa-leaf text-forest-900 text-4xl"></i>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <i class="fa-solid fa-spinner fa-spin text-white text-xs"></i>
+                </div>
+            </div>
+            <!-- Texte -->
+            <div>
+                <h2 class="text-2xl font-black text-white">UBUMWE <span class="text-amber-400">Agri</span></h2>
+                <p id="loading-msg" class="text-emerald-300 text-sm mt-1 font-medium">Connexion en cours…</p>
+            </div>
+            <!-- Barre de progression -->
+            <div class="w-48 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                <div id="loading-bar" class="h-full bg-amber-400 rounded-full transition-all duration-100" style="width:0%"></div>
+            </div>
+            <!-- Points animés -->
+            <div class="flex gap-2">
+                <span class="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style="animation-delay:0ms"></span>
+                <span class="w-2 h-2 bg-amber-300 rounded-full animate-bounce" style="animation-delay:150ms"></span>
+                <span class="w-2 h-2 bg-amber-200 rounded-full animate-bounce" style="animation-delay:300ms"></span>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER SIMPLIFIÉ MOBILE-FIRST -->
     <header class="sticky top-0 z-40 bg-forest-800 text-white shadow-lg border-b border-forest-600">
         <div class="px-4 h-14 flex items-center justify-between">
@@ -265,15 +298,21 @@
 
             <!-- Droite : Langue + Hamburger -->
             <div class="flex items-center gap-2">
-                <!-- Sélecteur langue compact -->
+                <!-- Sélecteur langue compact — 4 langues -->
                 <div class="flex items-center bg-forest-900/60 rounded-lg overflow-hidden border border-forest-600">
-                    <button onclick="setLanguage('fr')" data-lang="fr" class="lang-btn px-2 py-1 text-[10px] font-black transition active">FR</button>
-                    <button onclick="setLanguage('rn')" data-lang="rn" class="lang-btn px-2 py-1 text-[10px] font-black transition">RN</button>
-                    <button onclick="setLanguage('en')" data-lang="en" class="lang-btn px-2 py-1 text-[10px] font-black transition">EN</button>
+                    <button onclick="setLanguage('fr')" data-lang="fr" class="lang-btn px-2 py-1 text-[10px] font-black transition active" title="Français">FR</button>
+                    <button onclick="setLanguage('rn')" data-lang="rn" class="lang-btn px-2 py-1 text-[10px] font-black transition" title="Kirundi">RN</button>
+                    <button onclick="setLanguage('rw')" data-lang="rw" class="lang-btn px-2 py-1 text-[10px] font-black transition" title="Kinyarwanda">RW</button>
+                    <button onclick="setLanguage('en')" data-lang="en" class="lang-btn px-2 py-1 text-[10px] font-black transition" title="English">EN</button>
                 </div>
 
-                <!-- Badge offline -->
-                <span id="db-status-text" class="hidden sm:inline-block text-[9px] text-emerald-300 font-bold"></span>
+                <!-- Badge offline/online -->
+                <span id="db-status-text" class="hidden sm:inline-block text-[9px] font-bold"></span>
+                <!-- Indicateur connexion visible -->
+                <span id="online-badge" class="hidden sm:flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+                    <span id="online-badge-text" data-i18n="status_online">En ligne</span>
+                </span>
 
                 <!-- Profil compact (si connecté) -->
                 <div id="user-profile-container" class="hidden">
@@ -323,6 +362,9 @@
             </button>
             <button id="menu-admin-btn" onclick="app.showScreen('admin');toggleHamburger()" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 text-amber-300 text-xs font-bold transition">
                 <i class="fa-solid fa-user-shield w-4"></i> Admin
+            <button id="menu-superadmin-btn" onclick="app.showScreen('superadmin');toggleHamburger()" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-yellow-950 hover:bg-yellow-900 text-yellow-300 text-xs font-bold transition">
+                <i class="fa-solid fa-crown w-4"></i> <span data-i18n="nav_superadmin">⭐ Super Admin</span>
+            </button>
             </button>
             <button id="menu-logout-btn" onclick="app.logout();toggleHamburger()" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-300 text-xs font-bold transition">
                 <i class="fa-solid fa-right-from-bracket w-4"></i> Déconnexion
@@ -682,6 +724,9 @@
                         <span data-i18n="scoring_calculate">ÉVALUER LE SCORE ET RECOMMANDER L'ENGRAIS</span>
                     </button>
                 </form>
+
+                <!-- WIDGET MÉTÉO TEMPS RÉEL (chargé quand province sélectionnée) -->
+                <div id="weather-widget" class="hidden px-6 pb-2"></div>
 
                 <!-- RESULTAT SCORING (INJECTÉ EN JS) -->
                 <div id="scoring-result-container" class="hidden p-6 bg-slate-50 border-t border-slate-200 space-y-4"></div>
@@ -1334,10 +1379,20 @@
                     </div>
                 </div>
             </div>
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!-- ÉCRAN SUPER ADMIN PRIVÉ                           -->
+        <!-- ═══════════════════════════════════════════════════ -->
+        <section id="screen-superadmin" class="hidden space-y-6">
+            <!-- Rendu entièrement par superadmin.js -->
         </section>
 
     </div>
     </main>
+
+    <!-- WIDGET NOTATION 5 ÉTOILES (visible avant le footer) -->
+    <div class="max-w-6xl mx-auto px-4 py-6">
+        <div id="rating-widget" class="max-w-sm mx-auto"></div>
+    </div>
 
 
     <!-- MODALE AUTHENTIFICATION (LOGIN / REGISTER) -->
@@ -1519,11 +1574,20 @@
     <!-- TRADUCTIONS MULTILINGUES (chargé EN PREMIER) -->
     <script src="translations.js"></script>
 
-    <!-- SYSTÈME DE SÉCURITÉ (chargé après translations) -->
+    <!-- SYSTÈME DE SÉCURITÉ -->
     <script src="security.js"></script>
 
     <!-- BASE DE DONNEES MALADIES OFFLINE -->
     <script src="diseases_db.js"></script>
+
+    <!-- MÉTÉO TEMPS RÉEL -->
+    <script src="weather.js"></script>
+
+    <!-- SUPER ADMIN + ANALYTICS -->
+    <script src="superadmin.js"></script>
+
+    <!-- SYSTÈME DE NOTATION 5 ÉTOILES -->
+    <script src="rating.js"></script>
 
     <!-- APPLICATION LOGIC SCRIPT -->
     <script src="app.js"></script>
