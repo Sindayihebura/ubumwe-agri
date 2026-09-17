@@ -4,7 +4,7 @@
  * Stratégie : Cache-First avec mise à jour en arrière-plan
  */
 
-const CACHE_VERSION = 'ubumwe-v6';
+const CACHE_VERSION = 'ubumwe-v7';
 const CACHE_STATIC  = CACHE_VERSION + '-static';
 const CACHE_DYNAMIC = CACHE_VERSION + '-dynamic';
 
@@ -21,6 +21,18 @@ const STATIC_ASSETS = [
     './weather.js',
     './superadmin.js',
     './rating.js',
+    // Assets locaux CSS/JS (plus de dépendance CDN)
+    './tailwind.min.js',
+    './fontawesome.min.css',
+    './fonts/plus-jakarta-sans.css',
+    './fonts/75e255a1.woff2',
+    './fonts/491b8db3.woff2',
+    './fonts/0503470a.woff2',
+    './fonts/b33395df.woff2',
+    './fonts/76cdb1c1.woff2',
+    './webfonts/fa-solid-900.woff2',
+    './webfonts/fa-regular-400.woff2',
+    './webfonts/fa-brands-400.woff2',
     './icon-192.png',
     './icon-512.png',
     './icon.svg',
