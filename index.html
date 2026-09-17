@@ -2252,39 +2252,16 @@
         // Lancer activité démo
         chatApp.startDemoActivity();
 
-        // Communes par province (42 communes officielles - Loi 1/05 du 16 mars 2023)
-        const COMMUNES_PAR_PROVINCE = {
-            'BUJUMBURA': ['Bubanza','Bukinanyana','Cibitoke','Isare','Mpanda','Mugere','Mugina','Muhuta','Mukaza','Ntahangwa','Rwibaga'],
-            'GITEGA': ['Bugendana','Gishubi','Gitega','Karusi','Kiganda','Muramvya','Mwaro','Nyabihanga','Shombo'],
-            'BUTANYERERA': ['Busoni','Kayanza','Kiremba','Kirundo','Matongo','Muhanga','Ngozi','Tangara'],
-            'BURUNGA': ['Bururi','Makamba','Matana','Musongati','Nyanza-Lac','Rumonge','Rutana'],
-            'BUHUMUZA': ['Butaganzwa','Butihinda','Cankuzo','Gisagara','Gisuru','Muyinga','Ruyigi']
-        };
-
-        function updateCommunes(province) {
-            const sel = document.getElementById('score-commune');
-            const marketSel = document.getElementById('deposit-commune');
-            const communes = COMMUNES_PAR_PROVINCE[province] || [];
-
-            const opts = '<option value="">-- Choisir commune --</option>' +
-                communes.map(c => `<option value="${c}">${c}</option>`).join('');
-
-            if (sel) sel.innerHTML = opts;
-            if (marketSel) marketSel.innerHTML = opts;
-        }
+        // updateCommunes et COMMUNES_PAR_PROVINCE sont définis dans app.js
+        // Cette version locale est supprimée pour éviter le conflit de redéfinition
 
         // Afficher alerte saison au chargement
         document.addEventListener('DOMContentLoaded', () => {
-            // Appliquer la langue sauvegardée
             if (typeof translatePage === 'function') translatePage();
-            // Nettoyer tout blocage résiduel et initialiser la sécurité
-            localStorage.removeItem('UBUMWE_SEC_BLOCKED'); localStorage.removeItem('UBUMWE_SEC_LOG'); localStorage.removeItem('UBUMWE_SEC_LOG'); localStorage.removeItem('UBUMWE_SEC_LOG');
-            if (typeof UbumweSecurity !== 'undefined') {
-                UbumweSecurity.init();
-            }
-            const s = SAISONS_BURUNDI[getCurrentSaison()];
-            if (s) console.log('Saison actuelle:', s.nom, '-', s.alerte);
-            ussdApp.init();
+            localStorage.removeItem('UBUMWE_SEC_BLOCKED');
+            localStorage.removeItem('UBUMWE_SEC_LOG');
+            if (typeof UbumweSecurity !== 'undefined') UbumweSecurity.init();
+            if (typeof ussdApp !== 'undefined') ussdApp.init();
         });
     </script>
 </body>

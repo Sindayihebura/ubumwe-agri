@@ -1230,7 +1230,7 @@ const app = {
         return `
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
             <div class="relative h-44 bg-slate-100 overflow-hidden">
-                <img src="${product.image_url}" alt="${product.name}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://via.placeholder.com/400x200?text=Photo'">
+                <img src="${product.image_url}" alt="${product.name}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22 viewBox=%220 0 400 200%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22400%22 height=%22200%22/%3E%3Ctext fill=%22%2394a3b8%22 font-size=%2216%22 font-family=%22sans-serif%22 x=%22200%22 y=%22105%22 text-anchor=%22middle%22%3EPhoto%3C/text%3E%3C/svg%3E'">
                 <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-extrabold ${badgeClass}">${product.type === 'animal' ? '🐄 Élevage' : '🌱 Végétal'}</span>
                 <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-slate-700">${product.province}</span>
             </div>

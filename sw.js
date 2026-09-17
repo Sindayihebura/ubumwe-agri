@@ -4,7 +4,7 @@
  * Stratégie : Cache-First avec mise à jour en arrière-plan
  */
 
-const CACHE_VERSION = 'ubumwe-v5';
+const CACHE_VERSION = 'ubumwe-v6';
 const CACHE_STATIC  = CACHE_VERSION + '-static';
 const CACHE_DYNAMIC = CACHE_VERSION + '-dynamic';
 
@@ -18,6 +18,9 @@ const STATIC_ASSETS = [
     './translations.js',
     './diseases_db.js',
     './security.js',
+    './weather.js',
+    './superadmin.js',
+    './rating.js',
     './icon-192.png',
     './icon-512.png',
     './icon.svg',
