@@ -589,7 +589,8 @@ const app = {
                     : 'w-1.5 h-1.5 rounded-full bg-slate-500 inline-block';
             }
             if (badgeTxt) badgeTxt.setAttribute('data-i18n', isOnline ? 'status_online' : 'status_offline');
-            if (typeof translatePage === 'function') translatePage();
+            // Mettre à jour uniquement le badge texte, pas toute la page
+            if (badgeTxt && typeof t === 'function') badgeTxt.textContent = t(isOnline ? 'status_online' : 'status_offline');
             showToast(t(isOnline ? 'toast_online' : 'toast_offline'), isOnline ? 'success' : 'warning');
         };
         window.addEventListener('online',  update);
@@ -633,11 +634,10 @@ const app = {
         if (screenId === 'prices')      this.renderPrices();
         if (screenId === 'superadmin' && typeof superAdmin !== 'undefined') superAdmin.render();
         if (screenId === 'sos' && typeof ussdApp !== 'undefined') ussdApp.init();
-        // Fermer le menu hamburger automatiquement
-        if (typeof hamburgerOpen !== 'undefined' && hamburgerOpen && typeof toggleHamburger === 'function') toggleHamburger();
+        // Fermer TOUS les menus ouverts de façon garantie
+        if (typeof closeHamburger === 'function') closeHamburger();
+        this._closeUserDropdown();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Re-traduire les éléments dynamiques
-        if (typeof translatePage === 'function') translatePage();
     },
 
     updateBadgeStatus() {
@@ -848,37 +848,73 @@ const app = {
     // ============================================================
     // 7. MENU UTILISATEUR (DROPDOWN)
     // ============================================================
+    // ============================================================
+    // 7. MENU UTILISATEUR (DROPDOWN)
+    // ============================================================
     toggleUserMenu() {
-        let menu = document.getElementById('user-dropdown-menu');
-        if (menu) { menu.remove(); return; }
+        // Fermer si déjà ouvert
+        const existing = document.getElementById('user-dropdown-menu');
+        if (existing) { existing.remove(); return; }
 
         const user = state.currentUser;
         if (!user) return;
 
-        menu = document.createElement('div');
+        const menu = document.createElement('div');
         menu.id = 'user-dropdown-menu';
-        menu.className = 'fixed top-16 right-4 z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 w-64 space-y-3';
+        menu.className = 'fixed top-16 right-4 z-[60] bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 w-64 space-y-3';
         menu.innerHTML = `
             <div class="border-b border-slate-100 pb-3 text-center">
                 <div class="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-forest-900 font-black text-lg mx-auto mb-2">
-                    ${(user.fullName || user.email).charAt(0).toUpperCase()}
+                    ${(user.fullName || user.email || 'U').charAt(0).toUpperCase()}
                 </div>
                 <p class="font-extrabold text-slate-900 text-sm">${user.fullName || 'Utilisateur'}</p>
-                <p class="text-xs text-slate-500">${user.email}</p>
-                <span class="inline-block text-[10px] font-extrabold mt-1 px-2 py-0.5 rounded-full ${user.role === 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} uppercase">${user.role}</span>
+                <p class="text-xs text-slate-500">${user.email || ''}</p>
+                <span class="inline-block text-[10px] font-extrabold mt-1 px-2 py-0.5 rounded-full ${user.role === 'admin' || user.role === 'super_admin' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} uppercase">${user.role}</span>
             </div>
             <div class="space-y-1.5">
-                ${user.role === 'admin' ? `<button onclick="app.showScreen('admin'); document.getElementById('user-dropdown-menu')?.remove();" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Dashboard Admin</button>` : ''}
-                <button onclick="app.openDepositModal(); document.getElementById('user-dropdown-menu')?.remove();" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-forest-700 bg-slate-50 hover:bg-slate-100 flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Déposer un Produit</button>
-                <button onclick="app.logout(); document.getElementById('user-dropdown-menu')?.remove();" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 flex items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Se Déconnecter</button>
+                ${(user.role === 'admin' || user.role === 'super_admin') ? `<button data-action="admin" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Dashboard Admin</button>` : ''}
+                ${user.role === 'super_admin' ? `<button data-action="superadmin" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-yellow-800 bg-yellow-50 hover:bg-yellow-100 flex items-center gap-2"><i class="fa-solid fa-crown"></i> Super Admin</button>` : ''}
+                <button data-action="deposit" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-forest-700 bg-slate-50 hover:bg-slate-100 flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Déposer un Produit</button>
+                <button data-action="logout" class="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 flex items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Se Déconnecter</button>
             </div>
         `;
+
+        // Attacher les actions via event delegation — pas d'inline onclick
+        menu.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            menu.remove();
+            if (action === 'admin')      this.showScreen('admin');
+            else if (action === 'superadmin') this.showScreen('superadmin');
+            else if (action === 'deposit')    this.openDepositModal();
+            else if (action === 'logout')     this.logout();
+        });
+
         document.body.appendChild(menu);
-        setTimeout(() => {
-            document.addEventListener('click', function close(e) {
-                if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', close); }
-            });
-        }, 100);
+
+        // Fermer au clic en dehors — en capture pour attraper avant tout autre handler
+        const closeOnOutside = (e) => {
+            if (!menu.contains(e.target) && !e.target.closest('#user-avatar-btn')) {
+                menu.remove();
+                document.removeEventListener('click', closeOnOutside, true);
+            }
+        };
+        // Délai d'une frame pour ne pas attraper le click qui a ouvert le menu
+        requestAnimationFrame(() => {
+            document.addEventListener('click', closeOnOutside, true);
+        });
+
+        // Fermer aussi avec Escape
+        const closeOnEsc = (e) => {
+            if (e.key === 'Escape') { menu.remove(); document.removeEventListener('keydown', closeOnEsc); }
+        };
+        document.addEventListener('keydown', closeOnEsc);
+    },
+
+    // Méthode utilitaire pour fermer le dropdown utilisateur depuis showScreen
+    _closeUserDropdown() {
+        document.getElementById('user-dropdown-menu')?.remove();
     },
 
     // ============================================================
