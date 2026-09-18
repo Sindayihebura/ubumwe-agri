@@ -28,35 +28,8 @@
     <!-- Supabase JS Client v2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Tailwind CSS — LOCAL (évite blocage CDN) -->
-    <script src="tailwind.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        forest: {
-                            50: '#f2f9f5',
-                            100: '#e1f2e8',
-                            500: '#2d6a4f',
-                            600: '#1b4332',
-                            700: '#163829',
-                            800: '#112d21',
-                            900: '#0b1d15',
-                        },
-                        ochre: {
-                            50: '#fffbeb',
-                            100: '#fef3c7',
-                            500: '#f59e0b',
-                            600: '#d97706',
-                            700: '#b7410e',
-                            800: '#8c2e08',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Tailwind CSS — Compiled at build time by Netlify (no CDN runtime) -->
+    <link rel="stylesheet" href="tailwind.css">
     
     <!-- FontAwesome — LOCAL (icônes offline) -->
     <link rel="stylesheet" href="fontawesome.min.css">
@@ -69,11 +42,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <style>
-        .bg-forest-600 { background-color: #1b4332 !important; }
-        .bg-forest-700 { background-color: #163829 !important; }
-        .bg-ochre-700  { background-color: #b7410e !important; }
-        .text-forest-700 { color: #163829 !important; }
-        .text-ochre-700  { color: #b7410e !important; }
+        /* forest colors in tailwind.css */
+        
+        
+        
+        
         
         input, select, button, textarea {
             min-height: 44px;

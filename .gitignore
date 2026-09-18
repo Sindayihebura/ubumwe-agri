@@ -1,0 +1,20 @@
+# Dependencies — installed by Netlify build
+node_modules/
+
+# Compiled Tailwind CSS is COMMITTED to git as a pre-built fallback.
+# Netlify will regenerate it during build (npm install && npm run build:css)
+# tailwind.css intentionally tracked in git
+
+# Old CDN runtime (replaced by compiled CSS — keep as reference only)
+tailwind.min.js
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Backup folders created by obfuscate.py
+_backup_*/
+
+# OS files
+.DS_Store
+Thumbs.db

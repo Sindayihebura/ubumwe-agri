@@ -4,7 +4,7 @@
  * Stratégie : Cache-First avec mise à jour en arrière-plan
  */
 
-const CACHE_VERSION = 'ubumwe-v7';
+const CACHE_VERSION = 'ubumwe-v8';
 const CACHE_STATIC  = CACHE_VERSION + '-static';
 const CACHE_DYNAMIC = CACHE_VERSION + '-dynamic';
 
@@ -21,8 +21,9 @@ const STATIC_ASSETS = [
     './weather.js',
     './superadmin.js',
     './rating.js',
-    // Assets locaux CSS/JS (plus de dépendance CDN)
-    './tailwind.min.js',
+    // CSS compilé par Netlify build (Tailwind statique)
+    './tailwind.css',
+    // FontAwesome local
     './fontawesome.min.css',
     './fonts/plus-jakarta-sans.css',
     './fonts/75e255a1.woff2',

@@ -1,10 +1,14 @@
 # ============================================================
 # UBUMWE Agri — Configuration Netlify
-# Site statique PWA — aucun build requis
+# Build: Tailwind CSS compiled at deploy time → no CDN runtime
 # ============================================================
 
 [build]
   publish = "."
+  command = "npm install && npm run build:css"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 # ── Redirections SPA ─────────────────────────────────────────
 [[redirects]]
@@ -21,7 +25,14 @@
     Referrer-Policy           = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     Permissions-Policy        = "camera=(), microphone=(), geolocation=()"
+    # CSP updated: tailwind.css is self, no external CSS CDN needed
     Content-Security-Policy   = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://api.open-meteo.com https://cdn.jsdelivr.net; frame-ancestors 'none'; worker-src 'self'"
+
+# ── Compiled Tailwind CSS ─────────────────────────────────────
+[[headers]]
+  for = "/tailwind.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 # ── Service Worker ────────────────────────────────────────────
 [[headers]]
@@ -42,6 +53,23 @@
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+
+# ── FontAwesome local ─────────────────────────────────────────
+[[headers]]
+  for = "/fontawesome.min.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/webfonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ── Polices locales ───────────────────────────────────────────
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 # ── Images locales ────────────────────────────────────────────
 [[headers]]
@@ -67,28 +95,5 @@
 
 [[headers]]
   for = "/*.jpg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# ── Tailwind local ───────────────────────────────────────────
-[[headers]]
-  for = "/tailwind.min.js"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# ── FontAwesome local ─────────────────────────────────────────
-[[headers]]
-  for = "/fontawesome.min.css"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/webfonts/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# ── Polices locales ───────────────────────────────────────────
-[[headers]]
-  for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
