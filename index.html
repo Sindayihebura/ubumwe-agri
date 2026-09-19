@@ -65,16 +65,81 @@
             overflow: hidden;
         }
 
-        /* Sélecteur de langue */
+        /* ══════════════════════════════════════════════════════
+           HEADER RESPONSIVE — mobile-first
+           Résout : overflow, lang selector overlap, badge crowding
+        ══════════════════════════════════════════════════════ */
+
+        /* ── Langue : taille de base ─────────────────────── */
         .lang-btn {
-            color: rgba(255,255,255,0.45);
+            padding: 5px 7px;
+            font-size: 10px;
+            line-height: 1;
+            color: rgba(255,255,255,0.5);
+            min-height: unset;   /* annule la règle globale min-height:44px */
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
         }
         .lang-btn.active {
             background-color: #f59e0b;
             color: #0b1d15;
         }
-        .lang-btn:hover:not(.active) {
-            color: white;
+        .lang-btn:hover:not(.active) { color: white; }
+
+        /* ── Indicateur online : masqué par défaut, visible ≥ 480px ── */
+        .header-online-badge { display: none; }
+        @media (min-width: 480px) {
+            .header-online-badge { display: inline-flex; }
+        }
+
+        /* ── Très petit écran < 360px ────────────────────── */
+        @media (max-width: 359px) {
+            /* Masquer le texte du logo, garder l'icône */
+            .header-logo-text { display: none; }
+
+            /* Langue : 3 px de padding, très compact */
+            .lang-btn { padding: 4px 5px; font-size: 9px; height: 28px; }
+
+            /* Cacher RW sur < 360px (4 boutons trop larges) */
+            .lang-rw-btn { display: none; }
+
+            /* Gap réduit */
+            .header-right { gap: 4px; }
+            .header-inner { padding-left: 8px; padding-right: 8px; }
+        }
+
+        /* ── Petit écran 360-479px ───────────────────────── */
+        @media (min-width: 360px) and (max-width: 479px) {
+            .lang-btn { padding: 5px 6px; font-size: 10px; }
+            .header-right { gap: 6px; }
+        }
+
+        /* ── Moyen 480-639px ─────────────────────────────── */
+        @media (min-width: 480px) and (max-width: 639px) {
+            .lang-btn { padding: 5px 8px; }
+        }
+
+        /* ── Menu hamburger : grille responsive ─────────── */
+        /* < 360px : 1 colonne pour tout lire confortablement */
+        .ham-grid { grid-template-columns: 1fr; }
+        @media (min-width: 360px) {
+            .ham-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        /* Boutons logout/admin/superadmin : pleine largeur (span 2 col) */
+        #menu-logout-btn,
+        #menu-admin-btn,
+        #menu-superadmin-btn {
+            grid-column: 1 / -1;
+        }
+
+        /* ── Hauteur max du menu hamburger avec scroll interne ── */
+        #hamburger-menu {
+            max-height: calc(100vh - 56px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* ── DESIGN PROFESSIONNEL ── */
@@ -284,104 +349,182 @@
         </div>
     </div>
 
-    <!-- HEADER SIMPLIFIÉ MOBILE-FIRST -->
-    <header class="sticky top-0 z-40 bg-forest-800 text-white shadow-lg border-b border-forest-600">
-        <div class="px-4 h-14 flex items-center justify-between">
-            
-            <!-- Logo -->
-            <div class="flex items-center gap-2 cursor-pointer" onclick="app.showScreen('home')">
+    <!-- ══════════════════════════════════════════════════════
+         HEADER MOBILE-FIRST — structure réécrite
+         Breakpoints :
+           < 360px  → logo icône seule, lang réduit à 2 lettres chacun
+           360-480px → logo + texte court, lang 4 boutons compacts
+           480px+   → complet avec badge online
+    ══════════════════════════════════════════════════════ -->
+    <header class="sticky top-0 z-40 bg-forest-800 text-white shadow-lg border-b border-forest-600" role="banner">
+        <div class="header-inner px-3 sm:px-4 h-14 flex items-center justify-between gap-2 min-w-0">
+
+            <!-- ── Logo (gauche) ──────────────────────────── -->
+            <div class="header-logo flex items-center gap-1.5 cursor-pointer flex-shrink-0 min-w-0"
+                 onclick="app.showScreen('home')"
+                 role="link" tabindex="0" aria-label="UBUMWE Agri — Accueil"
+                 onkeydown="if(event.key==='Enter')app.showScreen('home')">
+                <!-- Icône toujours visible -->
                 <div class="w-8 h-8 rounded-lg bg-amber-400 flex items-center justify-center flex-shrink-0">
-                    <i class="fa-solid fa-leaf text-forest-900 text-sm"></i>
+                    <i class="fa-solid fa-leaf text-forest-900 text-sm" aria-hidden="true"></i>
                 </div>
-                <div>
-                    <h1 class="font-extrabold text-sm leading-none">
+                <!-- Texte : masqué sous 360px, visible au-dessus -->
+                <div class="header-logo-text min-w-0 overflow-hidden">
+                    <h1 class="font-extrabold text-sm leading-none whitespace-nowrap">
                         UBUMWE <span class="text-amber-400">Agri</span>
                     </h1>
-                    <span class="text-[9px] text-emerald-300">Burundi · FOMI · Offline</span>
+                    <span class="text-[9px] text-emerald-300 whitespace-nowrap hidden xs:block">Burundi · FOMI · Offline</span>
                 </div>
             </div>
 
-            <!-- Droite : Langue + Hamburger -->
-            <div class="flex items-center gap-2">
-                <!-- Sélecteur langue compact — 4 langues -->
-                <div class="flex items-center bg-forest-900/60 rounded-lg overflow-hidden border border-forest-600">
-                    <button onclick="setLanguage('fr')" data-lang="fr" class="lang-btn px-2 py-1 text-[10px] font-black transition active" title="Français">FR</button>
-                    <button onclick="setLanguage('rn')" data-lang="rn" class="lang-btn px-2 py-1 text-[10px] font-black transition" title="Kirundi">RN</button>
-                    <button onclick="setLanguage('rw')" data-lang="rw" class="lang-btn px-2 py-1 text-[10px] font-black transition" title="Kinyarwanda">RW</button>
-                    <button onclick="setLanguage('en')" data-lang="en" class="lang-btn px-2 py-1 text-[10px] font-black transition" title="English">EN</button>
+            <!-- ── Droite : lang + badge + avatar + hamburger ── -->
+            <div class="header-right flex items-center gap-1.5 flex-shrink-0">
+
+                <!-- Sélecteur de langue — compact, ne déborde jamais -->
+                <div class="lang-switcher flex items-center rounded-lg overflow-hidden border border-forest-600 bg-forest-900/60"
+                     role="group" aria-label="Sélecteur de langue">
+                    <button onclick="setLanguage('fr')" data-lang="fr"
+                            class="lang-btn font-black transition active"
+                            title="Français" aria-label="Français">FR</button>
+                    <button onclick="setLanguage('rn')" data-lang="rn"
+                            class="lang-btn font-black transition"
+                            title="Kirundi" aria-label="Kirundi">RN</button>
+                    <button onclick="setLanguage('rw')" data-lang="rw"
+                            class="lang-btn font-black transition lang-rw-btn"
+                            title="Kinyarwanda" aria-label="Kinyarwanda">RW</button>
+                    <button onclick="setLanguage('en')" data-lang="en"
+                            class="lang-btn font-black transition"
+                            title="English" aria-label="English">EN</button>
                 </div>
 
-                <!-- Badge offline/online -->
-                <span id="db-status-text" class="hidden sm:inline-block text-[9px] font-bold"></span>
-                <!-- Indicateur connexion visible -->
-                <span id="online-badge" class="hidden sm:flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
-                    <span id="online-badge-text" data-i18n="status_online">En ligne</span>
+                <!-- Indicateur online/offline — masqué sur très petit écran -->
+                <span id="online-badge"
+                      class="header-online-badge hidden items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300"
+                      aria-live="polite">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block flex-shrink-0" aria-hidden="true"></span>
+                    <span id="online-badge-text" data-i18n="status_online" class="whitespace-nowrap">En ligne</span>
                 </span>
+                <!-- Badge db-status (fallback texte) -->
+                <span id="db-status-text" class="hidden"></span>
 
-                <!-- Profil compact (si connecté) -->
+                <!-- Avatar profil (si connecté) -->
                 <div id="user-profile-container" class="hidden">
-                    <button onclick="app.toggleUserMenu()" class="w-8 h-8 rounded-full bg-amber-400 text-forest-900 font-black text-xs flex items-center justify-center shadow" id="user-avatar-btn">
-                        <i class="fa-solid fa-user text-xs"></i>
+                    <button onclick="app.toggleUserMenu()"
+                            id="user-avatar-btn"
+                            class="w-8 h-8 rounded-full bg-amber-400 text-forest-900 font-black text-xs flex items-center justify-center shadow flex-shrink-0"
+                            aria-label="Menu profil utilisateur">
+                        <i class="fa-solid fa-user text-xs" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <!-- Bouton Hamburger Menu -->
-                <button onclick="toggleHamburger()" id="hamburger-btn"
-                    class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-forest-700 hover:bg-forest-600 transition"
-                    aria-label="Menu">
-                    <span class="w-5 h-0.5 bg-white rounded block transition-all" id="hb1"></span>
-                    <span class="w-5 h-0.5 bg-white rounded block transition-all" id="hb2"></span>
-                    <span class="w-4 h-0.5 bg-white rounded block transition-all" id="hb3"></span>
+                <!-- Bouton hamburger ☰ -->
+                <button onclick="toggleHamburger()"
+                        id="hamburger-btn"
+                        class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-forest-700 hover:bg-forest-600 active:bg-forest-900 transition flex-shrink-0"
+                        aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="hamburger-menu">
+                    <span class="w-5 h-0.5 bg-white rounded block transition-all duration-200" id="hb1"></span>
+                    <span class="w-5 h-0.5 bg-white rounded block transition-all duration-200" id="hb2"></span>
+                    <span class="w-4 h-0.5 bg-white rounded block transition-all duration-200" id="hb3"></span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MENU HAMBURGER DROPDOWN -->
-    <div id="hamburger-menu" class="hidden fixed top-14 right-0 left-0 z-[39] bg-forest-900 border-b border-forest-700 shadow-2xl">
-        <div class="px-4 py-3 grid grid-cols-2 gap-2">
-            <button onclick="app.showScreen('home')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-house text-amber-400 w-4"></i> Accueil
+    <!-- ══════════════════════════════════════════════════════
+         MENU HAMBURGER — accessible, responsive, i18n complet
+         Grille 2 colonnes > 360px, 1 colonne en dessous
+    ══════════════════════════════════════════════════════ -->
+    <div id="hamburger-menu"
+         class="hidden fixed top-14 right-0 left-0 z-[39] bg-forest-900 border-b border-forest-700 shadow-2xl"
+         role="navigation" aria-label="Menu principal">
+
+        <!-- Grille des écrans -->
+        <div class="ham-grid px-3 py-3 grid gap-2">
+
+            <button onclick="app.showScreen('home')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 active:bg-forest-900 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-house text-amber-400 w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_home">Accueil</span>
             </button>
-            <button onclick="app.showScreen('scoring')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-calculator text-amber-400 w-4"></i> Agri-Scoring
+
+            <button onclick="app.showScreen('scoring')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 active:bg-forest-900 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-calculator text-amber-400 w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_scoring">Agri-Scoring</span>
             </button>
-            <button onclick="app.showScreen('market')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-store text-amber-400 w-4"></i> Marketplace
+
+            <button onclick="app.showScreen('market')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 active:bg-forest-900 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-store text-amber-400 w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_market">Marketplace</span>
             </button>
-            <button onclick="app.showScreen('livestock')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-cow text-emerald-400 w-4"></i> Élevage
+
+            <button onclick="app.showScreen('livestock')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 active:bg-forest-900 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-cow text-emerald-400 w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_livestock">Élevage</span>
             </button>
-            <button onclick="app.showScreen('diseases')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-virus text-red-400 w-4"></i> Maladies
+
+            <button onclick="app.showScreen('diseases')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 active:bg-forest-900 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-virus text-red-400 w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_diseases">Maladies</span>
             </button>
-            <button onclick="app.showScreen('prices')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-chart-line text-amber-400 w-4"></i> Prix
+
+            <button onclick="app.showScreen('prices')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 active:bg-forest-900 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-chart-line text-amber-400 w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_prices">Prix Marchés</span>
             </button>
-            <button onclick="app.showScreen('sos')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-900 hover:bg-red-800 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-phone-volume text-red-400 animate-pulse w-4"></i> SOS Kaza
+
+            <button onclick="app.showScreen('sos')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-900 hover:bg-red-800 active:bg-red-950 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-phone-volume text-red-300 animate-pulse w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_sos">SOS Agriculteur</span>
             </button>
-            <button onclick="app.showScreen('guide')" class="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold transition">
-                <i class="fa-solid fa-book-open text-amber-400 w-4"></i> Guide FOMI
+
+            <button onclick="app.showScreen('guide')"
+                    class="ham-btn flex items-center gap-2 px-3 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 active:bg-forest-900 text-white text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-book-open text-amber-400 w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_guide">Guide FOMI</span>
             </button>
-            <button id="menu-admin-btn" onclick="app.showScreen('admin')" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 text-amber-300 text-xs font-bold transition">
-                <i class="fa-solid fa-user-shield w-4"></i> Admin
-            <button id="menu-superadmin-btn" onclick="app.showScreen('superadmin')" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-yellow-950 hover:bg-yellow-900 text-yellow-300 text-xs font-bold transition">
-                <i class="fa-solid fa-crown w-4"></i> <span data-i18n="nav_superadmin">⭐ Super Admin</span>
+
+            <!-- Admin (visible seulement si rôle admin) -->
+            <button id="menu-admin-btn"
+                    onclick="app.showScreen('admin')"
+                    class="ham-btn hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 text-amber-300 text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-user-shield w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_admin">Dashboard Admin</span>
             </button>
+
+            <!-- Super Admin (visible seulement si rôle super_admin) -->
+            <button id="menu-superadmin-btn"
+                    onclick="app.showScreen('superadmin')"
+                    class="ham-btn hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-yellow-950 hover:bg-yellow-900 text-yellow-300 text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-crown w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="nav_superadmin">⭐ Super Admin</span>
             </button>
-            <button id="menu-logout-btn" onclick="app.logout()" class="hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-900 hover:bg-rose-800 text-rose-300 text-xs font-bold transition">
-                <i class="fa-solid fa-right-from-bracket w-4"></i> Déconnexion
+
+            <!-- Déconnexion (visible seulement si connecté) -->
+            <button id="menu-logout-btn"
+                    onclick="app.logout()"
+                    class="ham-btn hidden flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-900 hover:bg-rose-800 active:bg-rose-950 text-rose-300 text-xs font-bold transition w-full text-left">
+                <i class="fa-solid fa-right-from-bracket w-4 flex-shrink-0" aria-hidden="true"></i>
+                <span data-i18n="auth_logout">Déconnexion</span>
             </button>
         </div>
-        <!-- Connexion rapide si non connecté -->
-        <div id="menu-auth-btns" class="px-4 pb-3 flex gap-2">
-            <button onclick="app.openAuthModal('login');closeHamburger()" class="flex-1 py-2.5 bg-amber-400 text-forest-900 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5">
-                <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+
+        <!-- Boutons connexion rapide (si non connecté) -->
+        <div id="menu-auth-btns" class="px-3 pb-3 flex gap-2">
+            <button onclick="app.openAuthModal('login');closeHamburger()"
+                    class="flex-1 py-2.5 bg-amber-400 text-forest-900 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 active:bg-amber-300 transition">
+                <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                <span data-i18n="auth_login">Se connecter</span>
             </button>
-            <button onclick="app.openAuthModal('register');closeHamburger()" class="flex-1 py-2.5 bg-forest-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-forest-500">
-                <i class="fa-solid fa-user-plus"></i> S'inscrire
+            <button onclick="app.openAuthModal('register');closeHamburger()"
+                    class="flex-1 py-2.5 bg-forest-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-forest-500 active:bg-forest-900 transition">
+                <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                <span data-i18n="auth_register">S'inscrire</span>
             </button>
         </div>
     </div>
