@@ -228,3 +228,141 @@ INSERT INTO diseases_catalog(subject_type,subject_name,subject_name_rn,disease_n
  'DNCB : Anti-inflammatoires, antibiotiques. Brucellose : Abattre animaux positifs.',
  'DNCB : Imiti. Brucellose : Gusiga inka zigiranye indwara.','grave','OEB Burundi')
 ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- RATINGS & ANALYTICS — UBUMWE Agri v3
+-- Run this in Supabase → SQL Editor → New query
+-- ============================================================
+
+-- ── 1. TABLE : évaluations 5 étoiles ────────────────────────
+CREATE TABLE IF NOT EXISTS site_ratings (
+    id            UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+    -- identité souple (pas obligatoirement connecté)
+    user_id       UUID        REFERENCES profiles(id) ON DELETE SET NULL,
+    visitor_name  TEXT        NOT NULL DEFAULT 'Visiteur',
+    visitor_email TEXT,
+    -- données de notation
+    stars         SMALLINT    NOT NULL CHECK (stars BETWEEN 1 AND 5),
+    comment       TEXT        CHECK (char_length(comment) <= 500),
+    lang          TEXT        NOT NULL DEFAULT 'fr'
+                               CHECK (lang IN ('fr','rn','rw','en')),
+    -- source technique
+    user_agent    TEXT,
+    -- anti-spam : un seul vote par fingerprint de session (nullable pour visiteurs anonymes)
+    session_key   TEXT        UNIQUE,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE site_ratings ENABLE ROW LEVEL SECURITY;
+
+-- Lecture publique (pour afficher la note globale)
+CREATE POLICY "sr_select_public"
+    ON site_ratings FOR SELECT
+    USING (TRUE);
+
+-- Insertion ouverte à tous (connectés ET anonymes)
+CREATE POLICY "sr_insert_public"
+    ON site_ratings FOR INSERT
+    WITH CHECK (TRUE);
+
+-- Mise à jour : seul le super_admin peut modifier
+CREATE POLICY "sr_update_admin"
+    ON site_ratings FOR UPDATE
+    USING (EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.uid() AND role = 'super_admin'
+    ));
+
+-- Suppression : super_admin uniquement
+CREATE POLICY "sr_delete_admin"
+    ON site_ratings FOR DELETE
+    USING (EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.uid() AND role = 'super_admin'
+    ));
+
+-- Index pour accélérer les agrégations (stats dashboard)
+CREATE INDEX IF NOT EXISTS idx_site_ratings_stars      ON site_ratings (stars);
+CREATE INDEX IF NOT EXISTS idx_site_ratings_created_at ON site_ratings (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_site_ratings_lang       ON site_ratings (lang);
+
+-- ── 2. TABLE : visites journalières ─────────────────────────
+CREATE TABLE IF NOT EXISTS site_visits (
+    id         UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+    visit_date DATE        NOT NULL DEFAULT CURRENT_DATE,
+    count      INTEGER     NOT NULL DEFAULT 1,
+    UNIQUE (visit_date)
+);
+
+ALTER TABLE site_visits ENABLE ROW LEVEL SECURITY;
+
+-- Lecture : super_admin uniquement (données analytiques privées)
+CREATE POLICY "sv_select_admin"
+    ON site_visits FOR SELECT
+    USING (EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.uid() AND role = 'super_admin'
+    ));
+
+-- Insertion/update : tous (le compteur est incrémenté à chaque visite)
+CREATE POLICY "sv_upsert_public"
+    ON site_visits FOR INSERT
+    WITH CHECK (TRUE);
+
+CREATE POLICY "sv_update_public"
+    ON site_visits FOR UPDATE
+    USING (TRUE);
+
+-- ── 3. FONCTION : incrémenter visite du jour ─────────────────
+-- Appelée depuis le client via supabase.rpc('record_visit')
+CREATE OR REPLACE FUNCTION record_visit()
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO site_visits (visit_date, count)
+    VALUES (CURRENT_DATE, 1)
+    ON CONFLICT (visit_date)
+    DO UPDATE SET count = site_visits.count + 1;
+END;
+$$;
+
+-- ── 4. VUE : stats globales de notation (accessible publiquement) ──
+CREATE OR REPLACE VIEW public.rating_stats AS
+SELECT
+    COUNT(*)                                    AS total_ratings,
+    ROUND(AVG(stars)::NUMERIC, 2)              AS average_stars,
+    COUNT(*) FILTER (WHERE stars = 5)           AS stars_5,
+    COUNT(*) FILTER (WHERE stars = 4)           AS stars_4,
+    COUNT(*) FILTER (WHERE stars = 3)           AS stars_3,
+    COUNT(*) FILTER (WHERE stars = 2)           AS stars_2,
+    COUNT(*) FILTER (WHERE stars = 1)           AS stars_1,
+    MAX(created_at)                             AS last_rating_at
+FROM site_ratings;
+
+-- Autoriser lecture publique de la vue
+GRANT SELECT ON public.rating_stats TO anon, authenticated;
+
+-- ── 5. VUE : 20 derniers avis (pour dashboard admin) ─────────
+CREATE OR REPLACE VIEW public.recent_ratings AS
+SELECT
+    id, visitor_name, stars, comment, lang, created_at
+FROM site_ratings
+ORDER BY created_at DESC
+LIMIT 20;
+
+GRANT SELECT ON public.recent_ratings TO authenticated;
+
+-- ── 6. VUE : répartition des notes par langue ─────────────────
+CREATE OR REPLACE VIEW public.ratings_by_lang AS
+SELECT
+    lang,
+    COUNT(*)                        AS total,
+    ROUND(AVG(stars)::NUMERIC, 2)  AS avg_stars
+FROM site_ratings
+GROUP BY lang
+ORDER BY total DESC;
+
+GRANT SELECT ON public.ratings_by_lang TO authenticated;

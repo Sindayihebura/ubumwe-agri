@@ -7,10 +7,10 @@
 // ==============================================================================
 // 1. INITIALISATION CLIENT SUPABASE
 // ==============================================================================
-const SUPABASE_URL = window.ENV_SUPABASE_URL || 'https://xyzcompany.supabase.co';
+const SUPABASE_URL     = window.ENV_SUPABASE_URL     || 'https://xyzcompany.supabase.co';
 const SUPABASE_ANON_KEY = window.ENV_SUPABASE_ANON_KEY || 'YOUR_ANON_KEY';
 
-let supabaseClient = null;
+let supabaseClient    = null;
 let isSupabaseConnected = false;
 
 try {
@@ -21,6 +21,12 @@ try {
 } catch (e) {
     console.warn('Supabase non initialisé — Mode Offline-First actif:', e);
 }
+
+// ── Exposer le client Supabase globalement ────────────────────────────────────
+// rating.js et superadmin.js accèdent au client via window._ubumweSupabase
+// ce qui découple ces modules de app.js et permet leur init indépendante.
+window._ubumweSupabase     = supabaseClient;
+window._ubumweSupabaseReady = isSupabaseConnected;
 
 const LOCAL_STORAGE_PRODUCTS = 'UBUMWE_AGRI_PRODUCTS_V3';
 const LOCAL_STORAGE_CREDITS  = 'UBUMWE_AGRI_CREDITS_V3';
@@ -564,8 +570,12 @@ const app = {
         this.renderAdminQueue();
         this.updateBadgeStatus();
         this.renderDiseases();
-        // Initialiser le widget de notation
+        // Initialiser le widget de notation (async — charge la moyenne globale depuis Supabase)
         if (typeof ratingApp !== 'undefined') ratingApp.init();
+        // Synchroniser les votes offline en attente si on est en ligne
+        if (typeof ratingApp !== 'undefined' && navigator.onLine) {
+            ratingApp.syncPendingRatings();
+        }
         // Écouter online/offline
         this.initNetworkListeners();
         // Appliquer la traduction complète au démarrage
@@ -643,6 +653,11 @@ const app = {
     updateBadgeStatus() {
         const el = document.getElementById('db-status-text');
         if (el) el.textContent = isSupabaseConnected ? 'Supabase Connecté' : 'Mode Offline-First';
+        // Mettre à jour le badge online en fonction du vrai état Supabase
+        if (isSupabaseConnected) {
+            window._ubumweSupabase     = supabaseClient;
+            window._ubumweSupabaseReady = true;
+        }
     },
 
     // ============================================================
