@@ -4,7 +4,7 @@
  * Stratégie : Cache-First avec mise à jour en arrière-plan
  */
 
-const CACHE_VERSION = 'ubumwe-v8';
+const CACHE_VERSION = 'ubumwe-v9';
 const CACHE_STATIC  = CACHE_VERSION + '-static';
 const CACHE_DYNAMIC = CACHE_VERSION + '-dynamic';
 
@@ -21,8 +21,9 @@ const STATIC_ASSETS = [
     './weather.js',
     './superadmin.js',
     './rating.js',
-    // CSS compilé par Netlify build (Tailwind statique)
+    // Feuilles de style : Tailwind et finitions de marque
     './tailwind.css',
+    './design.css',
     // FontAwesome local
     './fontawesome.min.css',
     './fonts/plus-jakarta-sans.css',
@@ -51,6 +52,8 @@ const STATIC_ASSETS = [
     './img-mouton.jfif',
     './img-poisson.jfif',
     './img-mais-maladie.jpg.jpg',
+    './agri-hero.jpg',
+    './ankole-cattle.jpg',
 ];
 
 // ── INSTALLATION ─────────────────────────────────────────────

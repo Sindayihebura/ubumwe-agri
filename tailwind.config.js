@@ -1,10 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // Scan all HTML and JS files for used classes
   content: [
     './index.html',
     './*.js',
-    '!./tailwind.min.js',   // exclude the old CDN runtime
+    '!./tailwind.min.js',
     '!./sw.js',
     '!./node_modules/**',
   ],
@@ -12,21 +11,55 @@ module.exports = {
     extend: {
       colors: {
         forest: {
-          50:  '#f2f9f5',
-          100: '#e1f2e8',
-          500: '#2d6a4f',
-          600: '#1b4332',
-          700: '#163829',
-          800: '#112d21',
-          900: '#0b1d15',
+          50:  '#f0f7f0',
+          100: '#dceadc',
+          200: '#b8d8b8',
+          300: '#8ec08e',
+          400: '#5a9e5a',
+          500: '#2e7d32',
+          600: '#1e5c2e',
+          700: '#164425',
+          800: '#112f1b',
+          900: '#0d2415',
+        },
+        cream: {
+          50:  '#fdfcfa',
+          100: '#faf7f0',
+          200: '#f0eada',
+          300: '#e8e0cc',
+          400: '#d4c9a8',
+        },
+        stone: {
+          50:  '#fafaf8',
+          100: '#f5f3ef',
+          200: '#e8e5de',
+          300: '#d6d0c2',
+          400: '#a8a29a',
+          500: '#78746e',
+          600: '#57534e',
+          700: '#44403c',
+          800: '#292524',
+          900: '#1c1917',
         },
         ochre: {
-          50:  '#fffbeb',
-          100: '#fef3c7',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b7410e',
-          800: '#8c2e08',
+          50:  '#fdf8e8',
+          100: '#f9e9b8',
+          400: '#e7c074',
+          500: '#c9982e',
+          600: '#b3861e',
+          700: '#8c6d1f',
+          800: '#6b5318',
+        },
+        sage: {
+          50:  '#f4f7f4',
+          100: '#e8efe8',
+          200: '#d1ddd1',
+        },
+        clay: {
+          50:  '#fdf2ef',
+          500: '#c4622d',
+          600: '#9c4221',
+          700: '#7c351b',
         },
       },
       fontFamily: {
@@ -38,37 +71,42 @@ module.exports = {
           '"Segoe UI"',
           'sans-serif',
         ],
+        display: [
+          '"Plus Jakarta Sans"',
+          'system-ui',
+          'sans-serif',
+        ],
+      },
+      boxShadow: {
+        'soft': '0 2px 12px rgba(26, 46, 26, 0.06)',
+        'soft-lg': '0 8px 32px rgba(26, 46, 26, 0.08)',
+        'soft-xl': '0 16px 48px rgba(26, 46, 26, 0.12)',
+        'card': '0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06)',
+        'card-hover': '0 4px 12px rgba(0,0,0,0.05), 0 16px 40px rgba(0,0,0,0.09)',
+      },
+      borderRadius: {
+        '2xl': '1rem',
+        '3xl': '1.5rem',
       },
     },
   },
-  // Safelist dynamic classes that are built at runtime in JS strings
   safelist: [
-    // Score card backgrounds
-    { pattern: /bg-(emerald|amber|rose|blue|slate|forest|red|orange|yellow|green|sky|purple)-(50|100|200|300|400|500|600|700|800|900|950)/ },
-    { pattern: /text-(emerald|amber|rose|blue|slate|forest|red|orange|yellow|green|sky|purple|ochre)-(50|100|200|300|400|500|600|700|800|900|950)/ },
-    { pattern: /border-(emerald|amber|rose|blue|slate|forest|red|orange|yellow|green|sky|purple)-(50|100|200|300|400|500|600|700|800|900|950)/ },
-    // Dynamic grid columns used in JS renders
+    { pattern: /bg-(emerald|amber|rose|blue|slate|forest|red|orange|yellow|green|sky|purple|stone|cream|sage|clay|ochre)-(50|100|200|300|400|500|600|700|800|900|950)/ },
+    { pattern: /text-(emerald|amber|rose|blue|slate|forest|red|orange|yellow|green|sky|purple|stone|cream|sage|clay|ochre)-(50|100|200|300|400|500|600|700|800|900|950)/ },
+    { pattern: /border-(emerald|amber|rose|blue|slate|forest|red|orange|yellow|green|sky|purple|stone|cream|sage|clay|ochre)-(50|100|200|300|400|500|600|700|800|900|950)/ },
     'grid-cols-1', 'grid-cols-2', 'grid-cols-3', 'grid-cols-4',
     'sm:grid-cols-2', 'sm:grid-cols-3', 'sm:grid-cols-4', 'sm:grid-cols-5',
-    // Toast types
     'bg-rose-700', 'bg-amber-600', 'bg-blue-700', 'bg-emerald-700',
-    // Loading bar
     'w-0', 'w-full',
-    // Animation classes
     'animate-pulse', 'animate-bounce', 'animate-spin',
-    // Severity badges for diseases
     'bg-blue-100', 'text-blue-800', 'border-blue-200',
     'bg-amber-100', 'text-amber-800', 'border-amber-200',
     'bg-orange-100', 'text-orange-800', 'border-orange-200',
     'bg-red-100', 'text-red-800', 'border-red-200',
-    // Arbitrary values used in HTML
     'z-[39]', 'z-[60]', 'z-[9999]',
     'max-h-[90vh]',
-    // Hidden/show toggles
     'hidden', 'flex', 'block', 'inline-block', 'inline-flex',
-    // Pointer events
     'pointer-events-none', 'pointer-events-auto',
-    // Line clamp
     'line-clamp-1', 'line-clamp-2', 'line-clamp-3',
   ],
   plugins: [],

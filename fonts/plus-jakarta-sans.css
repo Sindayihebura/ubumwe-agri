@@ -1,35 +1,36 @@
+/* Plus Jakarta Sans — self-hosted for reliable offline use. */
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(./fonts/a61e26c3.woff2) format('truetype');
+  src: url('./75e255a1.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url(./fonts/d11c7c2b.woff2) format('truetype');
+  src: url('./491b8db3.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url(./fonts/9f311d0e.woff2) format('truetype');
+  src: url('./0503470a.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url(./fonts/78a6995f.woff2) format('truetype');
+  src: url('./b33395df.woff2') format('woff2');
 }
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: url(./fonts/2eb7c869.woff2) format('truetype');
+  src: url('./76cdb1c1.woff2') format('woff2');
 }
