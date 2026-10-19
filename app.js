@@ -38,7 +38,7 @@ const LOCAL_STORAGE_USER     = 'UBUMWE_AGRI_CURRENT_USER_V3';
 const INITIAL_SEED_PRODUCTS = [
     {
         id: 'seed-1', type: 'vegetal', name: '1 Tonne de Haricots Jaunes (Kiharo)',
-        category: 'Légumineuses', quantity: 1000, unit: 'kg', price_per_unit: 2200, currency: 'FB',
+        category: 'Légumineuses', quantity: 1000, unit: 'kg', price_per_unit: 2200, currency: 'BIF',
         province: 'Gitega', commune: 'Giheta', whatsapp_phone: '+25779123456',
         description: 'Excellente récolte de la saison A, séchée et triée, prête à l\'exportation.',
         image_url: 'img-haricots.jpg.webp',
@@ -46,23 +46,23 @@ const INITIAL_SEED_PRODUCTS = [
     },
     {
         id: 'seed-2', type: 'animal', name: '2 Vaches Ankolé de Race Métissée',
-        category: 'Bovins', quantity: 2, unit: 'unité', price_per_unit: 650000, currency: 'FB',
+        category: 'Bovins', quantity: 2, unit: 'unité', price_per_unit: 650000, currency: 'BIF',
         province: 'Butanyerera', commune: 'Ngozi', whatsapp_phone: '+25771987654',
         description: 'Génisses saines en première gestation. Vaccinées contre la fièvre de la Vallée du Rift.',
-        image_url: 'img-vaches.jpg.gif',
+        image_url: 'ankole-cattle.jpg',
         status: 'approved', created_at: new Date(Date.now() - 3600000 * 72).toISOString()
     },
     {
         id: 'seed-3', type: 'vegetal', name: '500 kg de Maïs Blanc Séché',
-        category: 'Céréales', quantity: 500, unit: 'kg', price_per_unit: 1800, currency: 'FB',
+        category: 'Céréales', quantity: 500, unit: 'kg', price_per_unit: 1800, currency: 'BIF',
         province: 'Buhumuza', commune: 'Cankuzo', whatsapp_phone: '+25769223344',
         description: 'Maïs fertilisé avec engrais FOMI Bagara. Faible taux d\'humidité (<12%).',
-        image_url: 'img-mais.jpg.webp',
+        image_url: 'agri-hero.jpg',
         status: 'approved', created_at: new Date(Date.now() - 3600000 * 12).toISOString()
     },
     {
         id: 'seed-4', type: 'animal', name: '50 Poules Pondeuses de Race',
-        category: 'Volailles', quantity: 50, unit: 'unité', price_per_unit: 18000, currency: 'FB',
+        category: 'Volailles', quantity: 50, unit: 'unité', price_per_unit: 18000, currency: 'BIF',
         province: 'Bujumbura', commune: 'Bubanza', whatsapp_phone: '+25779554433',
         description: 'Poules au pic de ponte (85% rendement). Carnet de vaccination Newcastle à jour.',
         image_url: 'img-poules.jpg.jpg',
@@ -70,7 +70,7 @@ const INITIAL_SEED_PRODUCTS = [
     },
     {
         id: 'seed-5', type: 'animal', name: '10 Chèvres de Race Locale',
-        category: 'Caprins', quantity: 10, unit: 'unité', price_per_unit: 95000, currency: 'FB',
+        category: 'Caprins', quantity: 10, unit: 'unité', price_per_unit: 95000, currency: 'BIF',
         province: 'Burunga', commune: 'Rumonge', whatsapp_phone: '+25771332211',
         description: 'Élevage en stabulation contrôlée. Idéal pour constitution de cheptel familial.',
         image_url: 'img-chevre-local.jfif',
@@ -78,7 +78,7 @@ const INITIAL_SEED_PRODUCTS = [
     },
     {
         id: 'seed-6', type: 'vegetal', name: '50 Régimes de Bananes (Igikoro)',
-        category: 'Fruits', quantity: 50, unit: 'Régime', price_per_unit: 22000, currency: 'FB',
+        category: 'Fruits', quantity: 50, unit: 'Régime', price_per_unit: 22000, currency: 'BIF',
         province: 'Gitega', commune: 'Shombo', whatsapp_phone: '+25779887766',
         description: 'Bananes de table bien charnues. Récolte fraîche du jour.',
         image_url: 'img-bananes.jpg.png',
@@ -165,7 +165,28 @@ class AppState {
                 localStorage.setItem(LOCAL_STORAGE_PRODUCTS, JSON.stringify(INITIAL_SEED_PRODUCTS));
                 return [...INITIAL_SEED_PRODUCTS];
             }
-            return JSON.parse(stored);
+            const products = JSON.parse(stored);
+            if (!Array.isArray(products)) throw new Error('Format de produits invalide');
+
+            // Mettre à jour les visuels des annonces de démonstration sans toucher aux annonces des utilisateurs.
+            const seedImageUpdates = {
+                'seed-2': ['img-vaches.jpg.gif', 'ankole-cattle.jpg'],
+                'seed-3': ['img-mais.jpg.webp', 'agri-hero.jpg'],
+            };
+            let migrated = false;
+            products.forEach(product => {
+                const update = seedImageUpdates[product.id];
+                if (update && product.image_url === update[0]) {
+                    product.image_url = update[1];
+                    migrated = true;
+                }
+                if (product.id?.startsWith('seed-') && product.currency === 'FB') {
+                    product.currency = 'BIF';
+                    migrated = true;
+                }
+            });
+            if (migrated) localStorage.setItem(LOCAL_STORAGE_PRODUCTS, JSON.stringify(products));
+            return products;
         } catch {
             // Données corrompues : réinitialiser avec les données de démonstration
             localStorage.setItem(LOCAL_STORAGE_PRODUCTS, JSON.stringify(INITIAL_SEED_PRODUCTS));
@@ -529,7 +550,14 @@ function getPrixMarche(produit) {
 }
 
 function formatCurrency(amount) {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' FB';
+    const value = Number(amount);
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(Number.isFinite(value) ? value : 0) + ' BIF';
+}
+
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
 }
 
 function showToast(message, type = 'success') {
@@ -618,6 +646,7 @@ const app = {
             if (navBtn) {
                 navBtn.classList.remove('border-amber-400', 'text-white', 'font-bold');
                 navBtn.classList.add('text-slate-300');
+                navBtn.removeAttribute('aria-current');
             }
             const mobileBtn = document.getElementById(`nav-mobile-${s}`);
             if (mobileBtn) {
@@ -633,6 +662,7 @@ const app = {
         if (activeNav) {
             activeNav.classList.add('border-amber-400', 'text-white', 'font-bold');
             activeNav.classList.remove('text-slate-300');
+            activeNav.setAttribute('aria-current', 'page');
         }
         const activeMobile = document.getElementById(`nav-mobile-${screenId}`);
         if (activeMobile) {
@@ -782,7 +812,8 @@ const app = {
             state.setCurrentUser(null);
             this.updateAuthUI();
             showToast(t('toast_logout'), 'warning');
-            // Retour à la page de bienvenue
+            // Retour à l’écran de bienvenue
+            document.body.classList.add('app-locked');
             const ws = document.getElementById('welcome-screen');
             const ma = document.getElementById('main-app');
             if (ws) { ws.style.display = ''; ws.classList.remove('hidden'); }
@@ -1200,16 +1231,14 @@ const app = {
             showToast('Le prix doit être un nombre supérieur à 0.', 'error'); return;
         }
 
-        const defaultImg = type === 'animal'
-            ? 'https://images.unsplash.com/photo-1546445317-29f4545f9d52?auto=format&fit=crop&w=600&q=80'
-            : 'https://images.unsplash.com/photo-1551462147-ff29053bfc14?auto=format&fit=crop&w=600&q=80';
+        const defaultImg = type === 'animal' ? 'img-chevre-local.jfif' : 'agri-hero.jpg';
 
         const newProduct = {
             id: 'prod-' + Date.now(),
             user_id: state.currentUser ? state.currentUser.id : 'guest',
             type, category: fd.get('category').trim(), name,
             quantity: parseFloat(fd.get('quantity')), unit: fd.get('unit'),
-            price_per_unit: price, currency: 'FB', province,
+            price_per_unit: price, currency: 'BIF', province,
             commune: fd.get('commune') || '', whatsapp_phone: whatsapp,
             image_url: fd.get('image_url').trim() || defaultImg,
             description,
@@ -1272,41 +1301,68 @@ const app = {
     },
 
     createProductCard(product) {
-        const cleanPhone = (product.whatsapp_phone || '').replace(/[^\d+]/g, '');
-        const waMsg = encodeURIComponent(`Bonjour, je suis intéressé par votre annonce UBUMWE Agri : "${product.name}" (${formatCurrency(product.price_per_unit)}) à ${product.province}. Est-il disponible ?`);
+        const type = product.type === 'animal' ? 'animal' : 'vegetal';
+        const cleanPhone = String(product.whatsapp_phone || '').replace(/\D/g, '');
+        const nameText = String(product.name || 'Produit agricole');
+        const provinceText = String(product.province || 'Burundi');
+        const unitText = String(product.unit || 'unité');
+        const quantity = Number(product.quantity) || 0;
+        const unitPrice = Number(product.price_per_unit) || 0;
+        const totalPrice = formatCurrency(unitPrice * quantity);
+        const badgeClass = type === 'animal' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+        const imageFallback = type === 'animal' ? 'img-chevre-local.jfif' : 'agri-hero.jpg';
+        let imageUrl = imageFallback;
+        const imageCandidate = String(product.image_url || '').trim();
+        if (imageCandidate) {
+            try {
+                const parsedImage = new URL(imageCandidate, window.location.href);
+                if (parsedImage.protocol === 'https:' || parsedImage.origin === window.location.origin) {
+                    imageUrl = parsedImage.href;
+                }
+            } catch (_) {
+                // L’image de démonstration locale reste utilisée si l’URL est invalide.
+            }
+        }
+        const waMsg = encodeURIComponent(`Bonjour, je suis intéressé par votre annonce UBUMWE Agri : "${nameText}" (${formatCurrency(unitPrice)}) à ${provinceText}. Est-elle disponible ?`);
         const waUrl = `https://wa.me/${cleanPhone}?text=${waMsg}`;
-        const totalPrice = formatCurrency(product.price_per_unit * product.quantity);
-        const badgeClass = product.type === 'animal' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+        const escapedName = escapeHTML(nameText);
+        const escapedProvince = escapeHTML(provinceText);
+        const escapedDescription = escapeHTML(product.description || 'Contactez le vendeur pour plus de détails.');
+        const escapedUnit = escapeHTML(unitText);
+        const escapedQuantity = escapeHTML(quantity);
+        const escapedImage = escapeHTML(imageUrl);
+        const escapedFallback = escapeHTML(imageFallback);
 
         return `
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
-            <div class="relative h-44 bg-slate-100 overflow-hidden">
-                <img src="${product.image_url}" alt="${product.name}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22 viewBox=%220 0 400 200%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22400%22 height=%22200%22/%3E%3Ctext fill=%22%2394a3b8%22 font-size=%2216%22 font-family=%22sans-serif%22 x=%22200%22 y=%22105%22 text-anchor=%22middle%22%3EPhoto%3C/text%3E%3C/svg%3E'">
-                <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-extrabold ${badgeClass}">${product.type === 'animal' ? '🐄 Élevage' : '🌱 Végétal'}</span>
-                <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/90 text-slate-700">${product.province}</span>
+        <article class="product-card-pro bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="product-image-wrap relative bg-slate-100 overflow-hidden">
+                <img src="${escapedImage}" alt="${escapedName}" class="product-image w-full h-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='${escapedFallback}'">
+                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${type === 'animal' ? '🐄 Élevage' : '🌱 Végétal'}</span>
+                <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/95 text-slate-700">${escapedProvince}</span>
             </div>
-            <div class="p-4 flex-1 flex flex-col justify-between gap-3">
+            <div class="product-card-body p-4 flex-1 flex flex-col gap-3">
                 <div>
-                    <h4 class="font-extrabold text-slate-900 text-sm line-clamp-2">${product.name}</h4>
-                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">${product.description}</p>
+                    <h3 class="product-title font-extrabold text-slate-900 text-sm line-clamp-2">${escapedName}</h3>
+                    <p class="product-description text-xs text-slate-500 mt-1 line-clamp-2">${escapedDescription}</p>
                 </div>
-                <div class="flex items-end justify-between mt-2">
-                    <div>
-                        <span class="block text-[10px] text-slate-400 font-bold uppercase">Prix unitaire</span>
-                        <span class="text-base font-black text-forest-700">${formatCurrency(product.price_per_unit)}</span>
-                        <span class="text-[10px] text-slate-400 ml-1">/ ${product.unit}</span>
+                <div class="flex items-end justify-between gap-2 mt-auto pt-2 border-t border-slate-100">
+                    <div class="min-w-0">
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wide">Prix unitaire</span>
+                        <span class="product-price text-base font-black text-forest-700">${formatCurrency(unitPrice)}</span>
+                        <span class="text-[10px] text-slate-400">/ ${escapedUnit}</span>
                     </div>
                     <div class="text-right">
-                        <span class="block text-[10px] text-slate-400 font-bold uppercase">Qté : ${product.quantity} ${product.unit}</span>
-                        <span class="text-xs font-bold text-amber-700">Total : ${totalPrice}</span>
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wide">Quantité</span>
+                        <span class="text-xs font-bold text-slate-600">${escapedQuantity} ${escapedUnit}</span>
                     </div>
                 </div>
+                <p class="text-[10px] font-bold text-ochre-700">Total estimé : ${totalPrice}</p>
                 <a href="${waUrl}" target="_blank" rel="noopener noreferrer"
-                   class="mt-1 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow transition">
-                    <i class="fa-brands fa-whatsapp text-base"></i> Contacter le Vendeur
+                   class="product-contact mt-1 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow transition">
+                    <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i> Contacter le vendeur
                 </a>
             </div>
-        </div>`;
+        </article>`;
     },
 
     // ============================================================
